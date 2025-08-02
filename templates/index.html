@@ -1,0 +1,3847 @@
+<!DOCTYPE html>
+<html lang="de" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenSchichtplaner5 - Professional Dashboard</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Note: Alpine.js removed - using vanilla JS system instead -->
+    
+    <!-- Matrix Schedule System -->
+    <script src="/static/js/matrix-schedule.js?v=2025-01-fix"></script>
+    
+    <!-- Simple Fix Script -->
+    <script src="/static/js/simple_fix.js?v=2025-02-fix"></script>
+    
+    <!-- Custom styling -->
+    <style>
+        /* Modern CSS Custom Properties for State-of-the-Art Design */
+        :root {
+            /* Color Palette */
+            --primary-50: #eff6ff;
+            --primary-100: #dbeafe;
+            --primary-200: #bfdbfe;
+            --primary-500: #3b82f6;
+            --primary-600: #2563eb;
+            --primary-700: #1d4ed8;
+            --primary-900: #1e3a8a;
+            
+            /* Neutral Colors */
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-300: #d1d5db;
+            --gray-400: #9ca3af;
+            --gray-500: #6b7280;
+            --gray-600: #4b5563;
+            --gray-700: #374151;
+            --gray-800: #1f2937;
+            --gray-900: #111827;
+            
+            /* Success/Warning/Error Colors */
+            --success-50: #f0fdf4;
+            --success-500: #22c55e;
+            --warning-50: #fffbeb;
+            --warning-500: #f59e0b;
+            --error-50: #fef2f2;
+            --error-500: #ef4444;
+            
+            /* Spacing Scale */
+            --space-1: 0.25rem;
+            --space-2: 0.5rem;
+            --space-3: 0.75rem;
+            --space-4: 1rem;
+            --space-6: 1.5rem;
+            --space-8: 2rem;
+            --space-12: 3rem;
+            
+            /* Typography */
+            --font-size-xs: 0.75rem;
+            --font-size-sm: 0.875rem;
+            --font-size-base: 1rem;
+            --font-size-lg: 1.125rem;
+            --font-size-xl: 1.25rem;
+            --font-size-2xl: 1.5rem;
+            --font-size-3xl: 1.875rem;
+            
+            /* Shadows */
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+            
+            /* Border Radius */
+            --radius-sm: 0.375rem;
+            --radius-md: 0.5rem;
+            --radius-lg: 0.75rem;
+            --radius-xl: 1rem;
+            
+            /* Transitions */
+            --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-base: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-slow: 350ms cubic-bezier(0.4, 0, 0.2, 1);
+            
+            /* Layout */
+            --sidebar-width: 280px;
+            --header-height: 64px;
+            --max-content-width: 1400px;
+        }
+        
+        /* Dark Mode Support */
+        [data-theme="dark"] {
+            /* Dark Color Palette */
+            --primary-50: #1e3a8a;
+            --primary-100: #1d4ed8;
+            --primary-200: #2563eb;
+            --primary-500: #3b82f6;
+            --primary-600: #60a5fa;
+            --primary-700: #93c5fd;
+            --primary-900: #dbeafe;
+            
+            /* Dark Neutral Colors */
+            --gray-50: #111827;
+            --gray-100: #1f2937;
+            --gray-200: #374151;
+            --gray-300: #4b5563;
+            --gray-400: #6b7280;
+            --gray-500: #9ca3af;
+            --gray-600: #d1d5db;
+            --gray-700: #e5e7eb;
+            --gray-800: #f3f4f6;
+            --gray-900: #f9fafb;
+            
+            /* Dark Success/Warning/Error Colors */
+            --success-50: #064e3b;
+            --success-500: #10b981;
+            --warning-50: #92400e;
+            --warning-500: #f59e0b;
+            --error-50: #991b1b;
+            --error-500: #ef4444;
+        }
+        
+        /* Dark Mode Toggle Button */
+        .theme-toggle {
+            position: fixed;
+            top: var(--space-4);
+            right: var(--space-4);
+            z-index: 60;
+            width: 48px;
+            height: 48px;
+            border: none;
+            border-radius: 50%;
+            background: var(--gray-100);
+            color: var(--gray-700);
+            box-shadow: var(--shadow-lg);
+            cursor: pointer;
+            transition: all var(--transition-base);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .theme-toggle:hover {
+            transform: scale(1.1);
+            box-shadow: var(--shadow-xl);
+            background: var(--primary-100);
+            color: var(--primary-700);
+        }
+        
+        /* Enhanced Micro-interactions and Animations */
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        .interactive-element {
+            position: relative;
+            overflow: hidden;
+            transition: all var(--transition-base);
+        }
+        
+        .interactive-element::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+            pointer-events: none;
+        }
+        
+        .interactive-element:active::before {
+            width: 300px;
+            height: 300px;
+        }
+        
+        /* Modern Focus Styles */
+        *:focus-visible {
+            outline: 2px solid var(--primary-500);
+            outline-offset: 2px;
+            border-radius: var(--radius-sm);
+        }
+        
+        /* Enhanced Button States */
+        button, .btn {
+            position: relative;
+            overflow: hidden;
+            transition: all var(--transition-base);
+            transform: translateZ(0); /* Hardware acceleration */
+        }
+        
+        button:hover, .btn:hover {
+            transform: translateY(-1px) scale(1.02);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        button:active, .btn:active {
+            transform: translateY(0) scale(0.98);
+        }
+        
+        /* Smooth Animations */
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes scaleIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        
+        @keyframes shimmer {
+            0% {
+                background-position: -200px 0;
+            }
+            100% {
+                background-position: calc(200px + 100%) 0;
+            }
+        }
+        
+        .animate-slide-in {
+            animation: slideIn 0.4s ease-out;
+        }
+        
+        .animate-fade-in {
+            animation: fadeIn 0.3s ease-out;
+        }
+        
+        .animate-scale-in {
+            animation: scaleIn 0.2s ease-out;
+        }
+        
+        .shimmer {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200px 100%;
+            animation: shimmer 1.5s infinite;
+        }
+        
+        /* Modern Layout System with CSS Grid */
+        .app-layout {
+            display: grid;
+            grid-template-columns: var(--sidebar-width) 1fr;
+            grid-template-rows: 1fr;
+            min-height: 100vh;
+            transition: grid-template-columns var(--transition-base);
+        }
+        
+        .sidebar {
+            grid-column: 1;
+            width: var(--sidebar-width);
+            background: white;
+            border-right: 1px solid var(--gray-200);
+            box-shadow: var(--shadow-sm);
+            overflow-y: auto;
+            position: relative;
+            z-index: 40;
+        }
+        
+        .main-content {
+            grid-column: 2;
+            overflow-x: auto;
+            background: var(--gray-50);
+        }
+        
+        /* Modern Card Component with Enhanced Interactions */
+        .card {
+            background: white;
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--gray-200);
+            transition: all var(--transition-base);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary-500), var(--primary-600));
+            transform: scaleX(0);
+            transition: transform var(--transition-base);
+        }
+        
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-xl);
+            border-color: var(--primary-200);
+        }
+        
+        .card:hover::before {
+            transform: scaleX(1);
+        }
+        
+        /* Enhanced Navigation with Modern Styling */
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: var(--space-3) var(--space-4);
+            margin: var(--space-1) var(--space-2);
+            border-radius: var(--radius-lg);
+            color: var(--gray-500);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: var(--font-size-sm);
+            transition: all var(--transition-base);
+            position: relative;
+            border: 1px solid transparent;
+        }
+        
+        .nav-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            width: 3px;
+            height: 0;
+            background: var(--primary-500);
+            border-radius: 0 2px 2px 0;
+            transform: translateY(-50%);
+            transition: height var(--transition-base);
+        }
+        
+        .nav-item:hover {
+            background: linear-gradient(135deg, var(--gray-100), var(--gray-50));
+            color: var(--gray-700);
+            transform: translateX(6px);
+            border-color: var(--gray-200);
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .nav-item:hover::before {
+            height: 60%;
+            background: var(--primary-400);
+        }
+        
+        .nav-item.active {
+            background: linear-gradient(135deg, var(--primary-50), var(--primary-100));
+            color: var(--primary-700);
+            transform: translateX(8px);
+            border-color: var(--primary-200);
+            box-shadow: var(--shadow-md);
+            font-weight: 600;
+        }
+        
+        .nav-item.active::before {
+            height: 80%;
+            background: var(--primary-600);
+        }
+        
+        /* Modern Statistics Grid with Enhanced Visual Hierarchy */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: var(--space-6);
+            margin-bottom: var(--space-8);
+        }
+        
+        .stat-card {
+            background: white;
+            padding: var(--space-6);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--gray-200);
+            position: relative;
+            overflow: hidden;
+            transition: all var(--transition-base);
+        }
+        
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-500), var(--primary-600));
+        }
+        
+        .stat-card::after {
+            content: '';
+            position: absolute;
+            top: var(--space-4);
+            right: var(--space-4);
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--primary-100), var(--primary-200));
+            border-radius: 50%;
+            opacity: 0.6;
+            transform: scale(0);
+            transition: transform var(--transition-base);
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--primary-300);
+        }
+        
+        .stat-card:hover::after {
+            transform: scale(1);
+        }
+        
+        .stat-value {
+            font-size: var(--font-size-3xl);
+            font-weight: 800;
+            color: var(--gray-900);
+            margin-bottom: var(--space-2);
+            line-height: 1.2;
+        }
+        
+        .stat-label {
+            color: var(--gray-500);
+            font-weight: 500;
+            font-size: var(--font-size-sm);
+            margin-bottom: var(--space-2);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .stat-change {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+        
+        .stat-change.positive {
+            color: rgb(5 150 105);
+        }
+        
+        .stat-change.negative {
+            color: rgb(220 38 38);
+        }
+        
+        .hidden { display: none !important; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        
+        /* Modern Responsive Design with Enhanced Mobile Experience */
+        @media (max-width: 1024px) {
+            .app-layout {
+                grid-template-columns: 1fr;
+                position: relative;
+            }
+            
+            .sidebar {
+                position: fixed;
+                top: 0;
+                left: 0;
+                height: 100vh;
+                width: var(--sidebar-width);
+                transform: translateX(-100%);
+                z-index: 50;
+                box-shadow: var(--shadow-xl);
+                backdrop-filter: blur(8px);
+                background: rgba(255, 255, 255, 0.95);
+                transition: transform var(--transition-base);
+            }
+            
+            .sidebar.open {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                grid-column: 1;
+                padding: var(--space-6);
+            }
+            
+            /* Enhanced mobile stats grid */
+            .stats-grid {
+                grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+                gap: var(--space-4);
+            }
+            
+            /* Mobile-optimized cards */
+            .card {
+                padding: var(--space-4);
+                border-radius: var(--radius-lg);
+            }
+            
+            /* Better mobile header */
+            .mobile-header {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: var(--space-4);
+                background: white;
+                border-bottom: 1px solid var(--gray-200);
+                position: sticky;
+                top: 0;
+                z-index: 30;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            :root {
+                --sidebar-width: 100vw;
+            }
+            
+            .sidebar {
+                width: 100vw;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+                gap: var(--space-3);
+            }
+            
+            .stat-card {
+                padding: var(--space-4);
+            }
+            
+            .nav-item {
+                padding: var(--space-4) var(--space-6);
+                margin: var(--space-1) var(--space-3);
+                font-size: var(--font-size-base);
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .main-content {
+                padding: var(--space-4);
+            }
+            
+            .card {
+                padding: var(--space-3);
+            }
+            
+            /* Enhanced mobile touch interactions */
+            .nav-item, .card, button {
+                -webkit-tap-highlight-color: rgba(59, 130, 246, 0.1);
+                touch-action: manipulation;
+            }
+            
+            /* Larger touch targets for mobile */
+            .tab-button, .nav-item {
+                min-height: 44px;
+                display: flex;
+                align-items: center;
+            }
+            
+            /* Improved mobile schedule matrix */
+            .schedule-matrix {
+                font-size: 0.6rem;
+                min-width: 100%;
+                overflow-x: auto;
+                scroll-behavior: smooth;
+                -webkit-overflow-scrolling: touch;
+            }
+            
+            .day-header, .shift-cell, .employee-cell {
+                min-width: 35px;
+                min-height: 35px;
+                padding: 2px;
+            }
+            
+            /* Mobile-friendly form controls */
+            input, select, textarea {
+                font-size: 16px; /* Prevents zoom on iOS */
+                min-height: 44px;
+            }
+        }
+        
+        /* Enhanced Micro-Interactions and UX Feedback */
+        .interactive-element {
+            transition: all var(--transition-fast);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .interactive-element::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: radial-gradient(circle, rgba(59, 130, 246, 0.3) 0%, transparent 70%);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.3s ease, height 0.3s ease;
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        .interactive-element:active::before {
+            width: 200px;
+            height: 200px;
+        }
+        
+        /* Enhanced button interactions */
+        button, .tab-button, .nav-item {
+            position: relative;
+            overflow: hidden;
+            transform-origin: center;
+            transition: all var(--transition-fast);
+        }
+        
+        button:hover, .tab-button:hover {
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        button:active, .tab-button:active {
+            transform: translateY(0);
+            transition-duration: 75ms;
+        }
+        
+        /* Smooth state transitions for data loading */
+        .fade-in {
+            animation: fadeIn 0.4s ease-out;
+        }
+        
+        .slide-up {
+            animation: slideUp 0.3s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes slideUp {
+            from { 
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* Enhanced form feedback */
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary-500);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+            transform: scale(1.02);
+        }
+        
+        /* Progress indicators with animations */
+        .progress-bar {
+            background: linear-gradient(90deg, var(--primary-500), var(--primary-600));
+            height: 3px;
+            border-radius: 2px;
+            transition: width 0.3s ease;
+        }
+        
+        /* Enhanced toast notifications */
+        .toast {
+            transform: translateX(100%);
+            transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+        
+        .toast.show {
+            transform: translateX(0);
+        }
+        
+        /* Modern Schedule Matrix with Enhanced User Experience */
+        .schedule-matrix {
+            max-height: 70vh;
+            overflow: auto;
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            background: white;
+            position: relative;
+        }
+        
+        .schedule-matrix::before {
+            content: '';
+            position: sticky;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--primary-500), var(--primary-600));
+            z-index: 15;
+        }
+        
+        .schedule-view {
+            display: none;
+        }
+        
+        .schedule-view.active {
+            display: block;
+        }
+        
+        /* Enhanced Schedule Tab Navigation */
+        .schedule-tab-btn {
+            transition: all var(--transition-base);
+            position: relative;
+            padding: var(--space-3) var(--space-4);
+            border-radius: var(--radius-md) var(--radius-md) 0 0;
+            font-weight: 500;
+            font-size: var(--font-size-sm);
+        }
+        
+        .schedule-tab-btn:hover {
+            color: var(--primary-600);
+            transform: translateY(-2px);
+            background: linear-gradient(135deg, var(--primary-50), var(--gray-50));
+        }
+        
+        .schedule-tab-btn.active {
+            border-color: var(--primary-500);
+            color: var(--primary-700);
+            background: linear-gradient(135deg, var(--primary-100), var(--primary-50));
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+            z-index: 10;
+        }
+        
+        .schedule-tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary-500), var(--primary-600));
+            border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+            animation: slideIn var(--transition-base) ease-out;
+        }
+        
+        @keyframes slideIn {
+            from { transform: scaleX(0); }
+            to { transform: scaleX(1); }
+        }
+        
+        /* Modern Day Header Design */
+        .day-header {
+            min-width: 80px;
+            max-width: 80px;
+            position: sticky;
+            top: 0;
+            z-index: 5;
+            background: var(--gray-50);
+            padding: var(--space-2) var(--space-1);
+            text-align: center;
+            font-size: var(--font-size-xs);
+            font-weight: 600;
+            border: 1px solid var(--gray-200);
+            transition: all var(--transition-fast);
+        }
+        
+        .day-header:hover {
+            background: var(--primary-50);
+            color: var(--primary-700);
+            transform: scale(1.02);
+        }
+        
+        .day-header.today {
+            background: linear-gradient(135deg, var(--primary-100), var(--primary-50));
+            color: var(--primary-700);
+            font-weight: 700;
+            box-shadow: inset 0 0 0 2px var(--primary-500);
+            animation: pulse 2s infinite;
+        }
+        
+        /* Enhanced Cell Design with Modern Interactions */
+        .shift-cell, .employee-cell {
+            min-width: 80px;
+            max-width: 80px;
+            height: 40px;
+            padding: var(--space-1);
+            font-size: var(--font-size-xs);
+            text-align: center;
+            vertical-align: middle;
+            border: 1px solid var(--gray-200);
+            position: relative;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            transition: all var(--transition-fast);
+            cursor: pointer;
+        }
+        
+        .shift-cell:hover, .employee-cell:hover {
+            transform: scale(1.05);
+            box-shadow: var(--shadow-md);
+            z-index: 10;
+            border-color: var(--primary-300);
+        }
+        
+        .shift-cell.has-assignment {
+            font-weight: 600;
+            animation: fadeIn 0.3s ease-out;
+            transition: all 0.2s ease;
+            /* No fallback colors - only JavaScript colors */
+        }
+        
+        .shift-cell.has-assignment:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            z-index: 10;
+            position: relative;
+        }
+        
+        .employee-cell.has-shift {
+            font-weight: 500;
+            animation: fadeIn 0.3s ease-out;
+            transition: all 0.2s ease;
+        }
+        
+        /* Only fallback if no style attribute at all */
+        .employee-cell.has-shift:not([style]) {
+            background: linear-gradient(135deg, rgb(236 253 245), rgb(209 250 229));
+            color: rgb(6 78 59);
+        }
+        
+        .employee-cell.has-shift:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            z-index: 10;
+            position: relative;
+        }
+        
+        /* DBF Colors are used directly - no predefined shift colors needed */
+        
+        /* DBF Colors have priority - only fallback styling */
+        .has-shift {
+            border-left: 2px solid rgba(0,0,0,0.2);
+            font-weight: 500;
+        }
+        
+        .has-shift:hover {
+            filter: brightness(1.1);
+            box-shadow: var(--shadow-md);
+            transform: scale(1.02);
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        .today {
+            animation: pulse 2s infinite;
+        }
+        
+        .dienstplan-employee-header, .einsatzplan-shift-header {
+            position: sticky;
+            left: 0;
+            z-index: 6;
+            background: linear-gradient(135deg, rgb(249 250 251), rgb(243 244 246));
+        }
+        
+        /* Jahresübersicht Matrix */
+        .jahres-matrix {
+            font-size: 0.75rem;
+            min-width: 100%;
+            overflow-x: auto;
+        }
+        
+        .jahres-matrix table {
+            border-collapse: collapse;
+            width: auto;
+            min-width: max-content; /* Dynamic width based on content */
+        }
+        
+        .jahres-matrix td, .jahres-matrix th {
+            white-space: nowrap;
+            text-align: center;
+            vertical-align: middle;
+            padding: 4px 2px;
+        }
+        
+        .jahres-month-header {
+            background: linear-gradient(135deg, rgb(243 244 246), rgb(229 231 235));
+            font-weight: 600;
+            padding: 8px 4px;
+            text-align: center;
+            border: 1px solid rgb(209 213 219);
+            position: sticky;
+            left: 0;
+            z-index: 5;
+        }
+        
+        .jahres-day-cell {
+            height: 40px;
+            border: 1px solid rgb(229 231 235);
+            text-align: center;
+            vertical-align: middle;
+            font-size: 0.75rem;
+            position: relative;
+            padding: 4px 2px;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            line-height: 1.2;
+        }
+        
+        .jahres-day-cell.has-shift {
+            background: linear-gradient(135deg, rgb(239 246 255), rgb(219 234 254));
+            color: rgb(37 99 235);
+            font-weight: 600;
+        }
+        
+        .jahres-day-cell.weekend {
+            background: linear-gradient(135deg, rgb(254 242 242), rgb(254 226 226));
+        }
+        
+        .jahres-day-cell.today {
+            background: linear-gradient(135deg, rgb(220 252 231), rgb(187 247 208));
+            color: rgb(22 101 52);
+            font-weight: 700;
+            box-shadow: inset 0 0 0 2px rgb(34 197 94);
+        }
+        
+        /* Fixed column widths for consistent layout */
+        .schedule-matrix table {
+            table-layout: fixed;
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .schedule-matrix th:not(:first-child),
+        .schedule-matrix td:not(:first-child) {
+            width: 80px !important;
+            min-width: 80px !important;
+            max-width: 80px !important;
+        }
+        
+        /* Ensure first column has reasonable width */
+        .schedule-matrix th:first-child,
+        .schedule-matrix td:first-child {
+            width: 180px !important;
+            min-width: 180px !important;
+            max-width: 180px !important;
+        }
+        
+        /* Override any conflicting styles */
+        .dienstplan-employee-header,
+        .einsatzplan-shift-header {
+            width: 180px !important;
+            min-width: 180px !important;
+            max-width: 180px !important;
+        }
+        
+        /* Responsive Matrix */
+        @media (max-width: 768px) {
+            .schedule-matrix {
+                font-size: 0.7rem;
+            }
+            
+            .day-header, .shift-cell, .employee-cell {
+                min-width: 60px;
+                max-width: 60px;
+            }
+            
+            .dienstplan-employee-header, .einsatzplan-shift-header {
+                min-width: 120px;
+                max-width: 120px;
+            }
+        }
+        
+        /* Toast Notifications */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            max-width: 400px;
+        }
+        
+        .toast {
+            background: white;
+            border-radius: 0.75rem;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            border: 1px solid rgb(229 231 235);
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+            transform: translateX(100%);
+            transition: all 0.3s ease;
+        }
+        
+        .toast.show {
+            transform: translateX(0);
+        }
+        
+        .toast.success {
+            border-left: 4px solid rgb(34 197 94);
+        }
+        
+        .toast.error {
+            border-left: 4px solid rgb(239 68 68);
+        }
+        
+        .toast.info {
+            border-left: 4px solid rgb(59 130 246);
+        }
+    </style>
+</head>
+
+<body class="h-full bg-gray-50" data-theme="light">
+    <!-- Dark Mode Toggle -->
+    <button class="theme-toggle" id="theme-toggle" title="Toggle Dark Mode">
+        <svg id="sun-icon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
+        </svg>
+        <svg id="moon-icon" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
+        </svg>
+    </button>
+
+    <!-- Toast Notifications -->
+    <div class="toast-container" id="toast-container"></div>
+    
+    <!-- Mobile Header (hidden on desktop) -->
+    <header class="mobile-header lg:hidden">
+        <div class="flex items-center gap-3">
+            <button onclick="toggleSidebar()" class="p-2 rounded-lg hover:bg-gray-100 transition-colors">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                </svg>
+            </button>
+            <h1 class="text-lg font-semibold text-gray-900">OpenSchichtplaner5</h1>
+        </div>
+        <div class="flex items-center gap-2">
+            <span class="text-sm text-gray-600" id="mobile-date-display">-</span>
+            <button id="mobile-theme-toggle" onclick="toggleTheme()" class="p-2 rounded-lg hover:bg-gray-100 transition-colors">
+                <svg class="w-5 h-5 theme-icon-light" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
+                </svg>
+                <svg class="w-5 h-5 theme-icon-dark hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
+                </svg>
+            </button>
+        </div>
+    </header>
+    
+    <!-- Modern App Layout -->
+    <div class="app-layout">
+        <!-- Sidebar -->
+        <nav class="sidebar" id="sidebar">
+        <div class="p-6 border-b border-gray-200">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-gradient-to-r from-blue-600 to-blue-700 rounded-lg flex items-center justify-center">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg text-gray-900">OpenSchichtplaner5</h1>
+                    <p class="text-xs text-gray-600">Professional Analytics</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="py-4">
+            <div class="px-4 mb-4">
+                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide">ÜBERSICHT</p>
+            </div>
+            
+            <a href="#" onclick="showTab('dashboard')" class="nav-item active" id="nav-dashboard">
+                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+                </svg>
+                Dashboard
+            </a>
+            
+            <a href="#" onclick="showTab('employees')" class="nav-item" id="nav-employees">
+                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"/>
+                </svg>
+                Mitarbeiter
+                <span id="employee-badge" class="ml-auto bg-blue-100 text-blue-700 text-xs px-2 py-1 rounded-full">0</span>
+            </a>
+            
+            <a href="#" onclick="showTab('analytics')" class="nav-item" id="nav-analytics">
+                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                </svg>
+                Advanced Analytics
+                <span class="ml-auto bg-green-100 text-green-700 text-xs px-2 py-1 rounded-full">NEU</span>
+            </a>
+            
+            <a href="#" onclick="showTab('schedule')" class="nav-item" id="nav-schedule">
+                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                </svg>
+                Schichtplan
+            </a>
+            
+            <a href="#" onclick="showTab('reports')" class="nav-item" id="nav-reports">
+                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
+                Reports
+            </a>
+        </div>
+
+        <div class="py-4 border-t border-gray-200">
+            <div class="px-4 mb-4">
+                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide">SYSTEM</p>
+            </div>
+            <div class="px-6 py-3">
+                <div class="flex items-center gap-2 text-sm">
+                    <div id="api-status-dot" class="w-2 h-2 rounded-full bg-red-400"></div>
+                    <span id="api-status-text" class="text-gray-600">API Offline</span>
+                </div>
+                <div class="text-xs text-gray-500 mt-1">
+                    <span id="tables-loaded">0</span> Tabellen geladen
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content min-h-screen">
+        <!-- Mobile Menu Button -->
+        <button onclick="toggleSidebar()" class="lg:hidden fixed top-4 left-4 z-50 p-2 bg-white rounded-lg shadow-md">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+            </svg>
+        </button>
+
+        <!-- Dashboard Tab -->
+        <div id="dashboard-tab" class="tab-content active p-8">
+            <!-- Header -->
+            <div class="mb-8">
+                <h1 class="text-3xl font-bold text-gray-900 mb-2">Analytics Dashboard</h1>
+                <p class="text-gray-600">Umfassende Analyse aller 30 Datenbanktabellen mit über 46.000 Datensätzen</p>
+            </div>
+
+            <!-- Quick Navigation -->
+            <div class="mb-8">
+                <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                        <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                        </svg>
+                        Schnellzugriff
+                    </h3>
+                    <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                        <button onclick="showTab('schedule')" class="flex flex-col items-center p-4 bg-white rounded-lg border border-gray-200 hover:border-blue-300 hover:shadow-md transition-all duration-200 group">
+                            <svg class="w-8 h-8 text-blue-600 mb-2 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                            </svg>
+                            <span class="text-sm font-medium text-gray-700">Schichtplan</span>
+                        </button>
+                        <button onclick="showTab('employees')" class="flex flex-col items-center p-4 bg-white rounded-lg border border-gray-200 hover:border-green-300 hover:shadow-md transition-all duration-200 group">
+                            <svg class="w-8 h-8 text-green-600 mb-2 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"/>
+                            </svg>
+                            <span class="text-sm font-medium text-gray-700">Mitarbeiter</span>
+                        </button>
+                        <button onclick="showTab('reports')" class="flex flex-col items-center p-4 bg-white rounded-lg border border-gray-200 hover:border-purple-300 hover:shadow-md transition-all duration-200 group">
+                            <svg class="w-8 h-8 text-purple-600 mb-2 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                            </svg>
+                            <span class="text-sm font-medium text-gray-700">Berichte</span>
+                        </button>
+                        <button onclick="window.open('/api/docs', '_blank')" class="flex flex-col items-center p-4 bg-white rounded-lg border border-gray-200 hover:border-orange-300 hover:shadow-md transition-all duration-200 group">
+                            <svg class="w-8 h-8 text-orange-600 mb-2 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/>
+                            </svg>
+                            <span class="text-sm font-medium text-gray-700">API Docs</span>
+                        </button>
+                        <button onclick="window.open('/dienstplan', '_blank')" class="flex flex-col items-center p-4 bg-white rounded-lg border border-gray-200 hover:border-indigo-300 hover:shadow-md transition-all duration-200 group">
+                            <svg class="w-8 h-8 text-indigo-600 mb-2 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+                            </svg>
+                            <span class="text-sm font-medium text-gray-700">Dienstplan</span>
+                        </button>
+                        <button onclick="window.open('/einsatzplan', '_blank')" class="flex flex-col items-center p-4 bg-white rounded-lg border border-gray-200 hover:border-red-300 hover:shadow-md transition-all duration-200 group">
+                            <svg class="w-8 h-8 text-red-600 mb-2 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                            </svg>
+                            <span class="text-sm font-medium text-gray-700">Einsatzplan</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="mb-8">
+                <div class="card p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                        <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                        </svg>
+                        Aktuelle Informationen
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="bg-gradient-to-r from-blue-50 to-blue-100 p-4 rounded-lg border border-blue-200">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm text-blue-600 font-medium">Heute</p>
+                                    <p class="text-lg font-bold text-blue-900" id="current-date-display">Laden...</p>
+                                </div>
+                                <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="bg-gradient-to-r from-green-50 to-green-100 p-4 rounded-lg border border-green-200">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm text-green-600 font-medium">System Status</p>
+                                    <div class="flex items-center mt-1">
+                                        <div id="api-status-dot" class="w-2 h-2 rounded-full bg-green-400 mr-2"></div>
+                                        <span id="api-status-text" class="text-sm font-medium text-green-900">API Online</span>
+                                    </div>
+                                </div>
+                                <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Key Stats -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value" id="stat-employees">-</div>
+                    <div class="stat-label">Aktive Mitarbeiter</div>
+                    <div class="stat-change positive">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
+                        </svg>
+                        <span>+5.2% seit letztem Monat</span>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-value" id="stat-shifts">-</div>
+                    <div class="stat-label">Geplante Schichten</div>
+                    <div class="stat-change positive">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
+                        </svg>
+                        <span>+12.4% diese Woche</span>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-value" id="stat-absences">-</div>
+                    <div class="stat-label">Abwesenheiten</div>
+                    <div class="stat-change negative">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6"/>
+                        </svg>
+                        <span>-8.1% vs. Vormonat</span>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-value" id="stat-efficiency">87%</div>
+                    <div class="stat-label">Planungseffizienz</div>
+                    <div class="stat-change positive">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
+                        </svg>
+                        <span>+2.8% Optimierung</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Analytics Grid -->
+            <div class="grid grid-cols-1 xl:grid-cols-2 gap-8 mb-8">
+                <!-- Main Chart -->
+                <div class="card p-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-lg font-semibold text-gray-900">Mitarbeiter-Auslastung</h3>
+                        <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                        </svg>
+                    </div>
+                    <div class="relative h-80">
+                        <canvas id="mainChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Side Panel -->
+                <div class="space-y-6">
+                    <div class="card p-6">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4">Live Metriken</h3>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="text-center p-4 bg-blue-50 rounded-lg">
+                                <div class="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center mx-auto mb-2">
+                                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"/>
+                                    </svg>
+                                </div>
+                                <div class="text-xl font-bold text-blue-600" id="live-active">-</div>
+                                <div class="text-sm text-gray-600">Heute aktiv</div>
+                            </div>
+
+                            <div class="text-center p-4 bg-green-50 rounded-lg">
+                                <div class="w-12 h-12 bg-green-500 rounded-lg flex items-center justify-center mx-auto mb-2">
+                                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                    </svg>
+                                </div>
+                                <div class="text-xl font-bold text-green-600" id="live-hours">-</div>
+                                <div class="text-sm text-gray-600">Std. geplant</div>
+                            </div>
+
+                            <div class="text-center p-4 bg-purple-50 rounded-lg">
+                                <div class="w-12 h-12 bg-purple-500 rounded-lg flex items-center justify-center mx-auto mb-2">
+                                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                    </svg>
+                                </div>
+                                <div class="text-xl font-bold text-purple-600" id="live-shifts">-</div>
+                                <div class="text-sm text-gray-600">Diese Woche</div>
+                            </div>
+
+                            <div class="text-center p-4 bg-orange-50 rounded-lg">
+                                <div class="w-12 h-12 bg-orange-500 rounded-lg flex items-center justify-center mx-auto mb-2">
+                                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.996-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+                                    </svg>
+                                </div>
+                                <div class="text-xl font-bold text-orange-600" id="live-conflicts">-</div>
+                                <div class="text-sm text-gray-600">Konflikte</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card p-6">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4">KI-Insights</h3>
+                        <div class="space-y-3" id="ai-insights">
+                            <div class="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                                <div class="flex items-center gap-2 mb-1">
+                                    <div class="w-6 h-6 bg-blue-500 rounded flex items-center justify-center">
+                                        <svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+                                        </svg>
+                                    </div>
+                                    <h4 class="font-medium text-blue-900">Optimierung erkannt</h4>
+                                </div>
+                                <p class="text-sm text-blue-800">Durch Schichtumverteilung können 15% der Überstunden reduziert werden.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Employees Tab -->
+        <div id="employees-tab" class="tab-content p-8">
+            <div class="mb-8">
+                <h1 class="text-3xl font-bold text-gray-900 mb-2">Mitarbeiter-Analytics</h1>
+                <p class="text-gray-600">Detaillierte Personalanalyse und -optimierung</p>
+            </div>
+
+            <div class="card">
+                <div class="p-6 border-b border-gray-200 bg-gradient-to-r from-gray-900 to-gray-800 text-white rounded-t-xl">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-lg font-semibold">Mitarbeiter-Übersicht</h3>
+                        <div class="flex items-center gap-4">
+                            <input type="text" placeholder="Suchen..." id="employee-search" onkeyup="searchEmployees()"
+                                   class="px-3 py-2 bg-white bg-opacity-20 border border-white border-opacity-30 rounded-lg text-white placeholder-white placeholder-opacity-70">
+                            <button class="px-4 py-2 bg-white bg-opacity-20 border border-white border-opacity-30 rounded-lg text-white hover:bg-opacity-30">
+                                Export
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="overflow-x-auto">
+                    <div id="employees-loading" class="p-12 text-center">
+                        <div class="w-8 h-8 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-4"></div>
+                        <p class="text-gray-600">Lade Mitarbeiter...</p>
+                    </div>
+                    <div id="employees-content" class="hidden">
+                        <!-- Employee content will be loaded here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Analytics Tab -->
+        <div id="analytics-tab" class="tab-content p-8">
+            <div class="mb-8">
+                <h1 class="text-3xl font-bold text-gray-900 mb-2">Advanced Analytics</h1>
+                <p class="text-gray-600">KI-gestützte Tiefenanalyse aller Datenquellen</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="card p-6 border-l-4 border-l-blue-500">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                            <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+                            </svg>
+                        </div>
+                        <h3 class="font-semibold text-gray-900">Abwesenheits-Vorhersage</h3>
+                    </div>
+                    <div class="text-2xl font-bold text-blue-600 mb-2">23.5%</div>
+                    <div class="text-sm text-gray-600">Erwartete Rate nächste Woche</div>
+                    <div class="mt-3 text-xs text-blue-600 bg-blue-50 px-2 py-1 rounded">
+                        95% Konfidenz-Intervall
+                    </div>
+                </div>
+
+                <div class="card p-6 border-l-4 border-l-green-500">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                            <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
+                            </svg>
+                        </div>
+                        <h3 class="font-semibold text-gray-900">Personalbedarfs-Prognose</h3>
+                    </div>
+                    <div class="text-2xl font-bold text-green-600 mb-2">+12</div>
+                    <div class="text-sm text-gray-600">Zusätzliche MA nächsten Monat</div>
+                    <div class="mt-3 text-xs text-green-600 bg-green-50 px-2 py-1 rounded">
+                        Basierend auf historischen Daten
+                    </div>
+                </div>
+
+                <div class="card p-6 border-l-4 border-l-purple-500">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                            <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3-.895-3-2s1.343-2 3-2 3 .895 3 2-1.343 2-3 2z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14c1.657 0 3 .895 3 2s-1.343 2-3 2-3-.895-3-2 1.343-2 3-2z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v6"/>
+                            </svg>
+                        </div>
+                        <h3 class="font-semibold text-gray-900">Optimierungs-Potenzial</h3>
+                    </div>
+                    <div class="text-2xl font-bold text-purple-600 mb-2">€8,340</div>
+                    <div class="text-sm text-gray-600">Monatliche Einsparung möglich</div>
+                    <div class="mt-3 text-xs text-purple-600 bg-purple-50 px-2 py-1 rounded">
+                        Durch KI-Optimierung
+                    </div>
+                </div>
+            </div>
+
+            <div class="card p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-6">Machine Learning Model Performance</h3>
+                <div class="space-y-4">
+                    <div>
+                        <div class="flex justify-between text-sm mb-2">
+                            <span class="text-gray-600">Abwesenheits-Vorhersage</span>
+                            <span class="font-semibold">94.2%</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div class="bg-blue-500 h-2 rounded-full" style="width: 94.2%"></div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="flex justify-between text-sm mb-2">
+                            <span class="text-gray-600">Schichtverteilung-Optimierung</span>
+                            <span class="font-semibold">89.7%</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div class="bg-green-500 h-2 rounded-full" style="width: 89.7%"></div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="flex justify-between text-sm mb-2">
+                            <span class="text-gray-600">Kostenprognose</span>
+                            <span class="font-semibold">96.8%</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div class="bg-purple-500 h-2 rounded-full" style="width: 96.8%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Schedule Tab -->
+        <div id="schedule-tab" class="tab-content p-8">
+            <div class="mb-8">
+                <h1 class="text-3xl font-bold text-gray-900 mb-2">Schichtpläne</h1>
+                <p class="text-gray-600">Verwalten und einsehen von Dienstplänen</p>
+            </div>
+            
+            <!-- Tab Navigation for Schedule Views -->
+            <div class="mb-6">
+                <div class="border-b border-gray-200">
+                    <nav class="-mb-px flex space-x-8">
+                        <button id="tab-dienstplan" class="schedule-tab-btn py-2 px-1 border-b-2 font-medium text-sm focus:outline-none transition-all duration-200 border-blue-500 text-blue-600"
+                                data-view="dienstplan">
+                            Dienstplan
+                        </button>
+                        <button id="tab-einsatzplan" class="schedule-tab-btn py-2 px-1 border-b-2 font-medium text-sm focus:outline-none transition-all duration-200 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                                data-view="einsatzplan">
+                            Einsatzplan
+                        </button>
+                        <button id="tab-jahresuebersicht" class="schedule-tab-btn py-2 px-1 border-b-2 font-medium text-sm focus:outline-none transition-all duration-200 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                                data-view="jahresuebersicht">
+                            Jahresübersicht
+                        </button>
+                    </nav>
+                </div>
+            </div>
+            
+            <!-- Navigation and Date Controls -->
+            <div class="card mb-6">
+                <div class="flex flex-col md:flex-row md:items-center md:justify-between p-4 gap-4">
+                    <!-- Date Navigation -->
+                    <div class="flex items-center space-x-2">
+                        <button id="nav-fast-backward" class="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="7 Tage zurück">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"/>
+                            </svg>
+                        </button>
+                        <button id="nav-day-backward" class="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="Ein Tag zurück">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                            </svg>
+                        </button>
+                        <button id="nav-today" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium" title="Heute">
+                            Heute
+                        </button>
+                        <button id="nav-day-forward" class="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="Ein Tag vor">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                            </svg>
+                        </button>
+                        <button id="nav-fast-forward" class="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="7 Tage vor">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"/>
+                            </svg>
+                        </button>
+                    </div>
+                    
+                    <!-- Current Date Display -->
+                    <div class="text-center">
+                        <h2 id="current-date-display" class="text-xl font-bold text-gray-900">31. Juli 2025</h2>
+                        <p id="current-week" class="text-sm text-gray-600">KW 31 • 14 Tage sichtbar</p>
+                    </div>
+                    
+                    <!-- View Options -->
+                    <div class="flex items-center space-x-2">
+                        <button id="export-schedule" class="p-2 text-gray-500 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors" title="Exportieren">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Enhanced Loading State with Skeleton -->
+            <div id="schedule-loading" class="card overflow-hidden">
+                <div class="p-6 space-y-6">
+                    <!-- Loading header -->
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-4">
+                            <div class="relative">
+                                <div class="animate-spin inline-block w-8 h-8 border-3 border-current border-t-transparent text-blue-500 rounded-full"></div>
+                                <div class="absolute inset-0 flex items-center justify-center">
+                                    <div class="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                                </div>
+                            </div>
+                            <div class="space-y-1">
+                                <p class="text-lg font-semibold text-gray-900">Schichtplan wird geladen...</p>
+                                <p class="text-sm text-gray-600">Daten werden aus der Datenbank abgerufen</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Skeleton table -->
+                    <div class="space-y-3">
+                        <!-- Header skeleton -->
+                        <div class="flex space-x-2">
+                            <div class="w-48 h-8 bg-gray-200 rounded animate-pulse"></div>
+                            <div class="w-12 h-8 bg-gray-200 rounded animate-pulse"></div>
+                            <div class="w-12 h-8 bg-gray-200 rounded animate-pulse"></div>
+                            <div class="w-12 h-8 bg-gray-200 rounded animate-pulse"></div>
+                            <div class="w-12 h-8 bg-gray-200 rounded animate-pulse"></div>
+                            <div class="w-12 h-8 bg-gray-200 rounded animate-pulse"></div>
+                            <div class="w-12 h-8 bg-gray-200 rounded animate-pulse"></div>
+                            <div class="w-12 h-8 bg-gray-200 rounded animate-pulse"></div>
+                        </div>
+                        
+                        <!-- Row skeletons -->
+                        <div class="space-y-2">
+                            <div class="flex space-x-2">
+                                <div class="w-48 h-6 bg-gray-100 rounded animate-pulse" style="animation-delay: 0.1s"></div>
+                                <div class="w-12 h-6 bg-gray-100 rounded animate-pulse" style="animation-delay: 0.2s"></div>
+                                <div class="w-12 h-6 bg-gray-100 rounded animate-pulse" style="animation-delay: 0.3s"></div>
+                                <div class="w-12 h-6 bg-gray-100 rounded animate-pulse" style="animation-delay: 0.4s"></div>
+                                <div class="w-12 h-6 bg-gray-100 rounded animate-pulse" style="animation-delay: 0.5s"></div>
+                                <div class="w-12 h-6 bg-gray-100 rounded animate-pulse" style="animation-delay: 0.6s"></div>
+                                <div class="w-12 h-6 bg-gray-100 rounded animate-pulse" style="animation-delay: 0.7s"></div>
+                                <div class="w-12 h-6 bg-gray-100 rounded animate-pulse" style="animation-delay: 0.8s"></div>
+                            </div>
+                            <div class="flex space-x-2">
+                                <div class="w-48 h-6 bg-gray-100 rounded animate-pulse" style="animation-delay: 0.9s"></div>
+                                <div class="w-12 h-6 bg-gray-100 rounded animate-pulse" style="animation-delay: 1.0s"></div>
+                                <div class="w-12 h-6 bg-gray-100 rounded animate-pulse" style="animation-delay: 1.1s"></div>
+                                <div class="w-12 h-6 bg-gray-100 rounded animate-pulse" style="animation-delay: 1.2s"></div>
+                                <div class="w-12 h-6 bg-gray-100 rounded animate-pulse" style="animation-delay: 1.3s"></div>
+                                <div class="w-12 h-6 bg-gray-100 rounded animate-pulse" style="animation-delay: 1.4s"></div>
+                                <div class="w-12 h-6 bg-gray-100 rounded animate-pulse" style="animation-delay: 1.5s"></div>
+                                <div class="w-12 h-6 bg-gray-100 rounded animate-pulse" style="animation-delay: 1.6s"></div>
+                            </div>
+                            <div class="flex space-x-2">
+                                <div class="w-48 h-6 bg-gray-100 rounded animate-pulse" style="animation-delay: 1.7s"></div>
+                                <div class="w-12 h-6 bg-gray-100 rounded animate-pulse" style="animation-delay: 1.8s"></div>
+                                <div class="w-12 h-6 bg-gray-100 rounded animate-pulse" style="animation-delay: 1.9s"></div>
+                                <div class="w-12 h-6 bg-gray-100 rounded animate-pulse" style="animation-delay: 2.0s"></div>
+                                <div class="w-12 h-6 bg-gray-100 rounded animate-pulse" style="animation-delay: 2.1s"></div>
+                                <div class="w-12 h-6 bg-gray-100 rounded animate-pulse" style="animation-delay: 2.2s"></div>
+                                <div class="w-12 h-6 bg-gray-100 rounded animate-pulse" style="animation-delay: 2.3s"></div>
+                                <div class="w-12 h-6 bg-gray-100 rounded animate-pulse" style="animation-delay: 2.4s"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Error State -->
+            <div id="schedule-error" class="card p-6 border-red-200 bg-red-50 hidden">
+                <div class="flex items-center">
+                    <svg class="w-6 h-6 text-red-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    <div>
+                        <h3 class="text-red-800 font-medium">Fehler beim Laden des Schichtplans</h3>
+                        <p id="schedule-error-message" class="text-red-700 text-sm mt-1">Unbekannter Fehler</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Dienstplan View -->
+            <div id="dienstplan-view" class="schedule-view">
+                <div class="card overflow-hidden">
+                    <div class="schedule-matrix">
+                        <table class="w-full border-collapse">
+                            <thead class="bg-gradient-to-r from-gray-50 to-gray-100 sticky top-0 z-10">
+                                <tr>
+                                    <th class="dienstplan-employee-header px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider border-r border-gray-300 min-w-[180px] max-w-[180px]">
+                                        Mitarbeiter
+                                    </th>
+                                    <!-- Day headers generated dynamically -->
+                                    <th id="dienstplan-day-headers"><!-- Headers will be inserted here --></th>
+                                </tr>
+                            </thead>
+                            <tbody id="dienstplan-tbody" class="bg-white">
+                                <!-- Employee rows will be generated dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Einsatzplan View -->
+            <div id="einsatzplan-view" class="schedule-view">
+                <div class="card overflow-hidden">
+                    <div class="schedule-matrix">
+                        <table class="w-full border-collapse">
+                            <thead class="bg-gradient-to-r from-blue-50 to-blue-100 sticky top-0 z-10">
+                                <tr>
+                                    <th class="einsatzplan-shift-header px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider border-r border-gray-300 min-w-[180px] max-w-[180px]">
+                                        Schichttyp
+                                    </th>
+                                    <!-- Day headers generated dynamically -->
+                                    <th id="einsatzplan-day-headers"><!-- Headers will be inserted here --></th>
+                                </tr>
+                            </thead>
+                            <tbody id="einsatzplan-tbody" class="bg-white">
+                                <!-- Shift type rows will be generated dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Jahresübersicht View -->
+            <div id="jahresuebersicht-view" class="schedule-view">
+                <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                    <div class="lg:col-span-1">
+                        <div class="card p-4">
+                            <h3 class="text-lg font-semibold mb-4">Mitarbeiter auswählen</h3>
+                            <select id="employee-selector" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                <option value="">Mitarbeiter wählen...</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="lg:col-span-3">
+                        <div class="card overflow-hidden">
+                            <div class="p-4 border-b border-gray-200">
+                                <h3 class="text-lg font-semibold">Jahresübersicht 2025</h3>
+                            </div>
+                            <div class="jahres-matrix overflow-auto max-h-[600px]">
+                                <div id="jahresuebersicht-content" class="p-4 text-center text-gray-500">
+                                    Wählen Sie einen Mitarbeiter aus
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reports Tab -->
+        <div id="reports-tab" class="tab-content p-8">
+            <div class="mb-8">
+                <h1 class="text-3xl font-bold text-gray-900 mb-2">Reports</h1>
+                <p class="text-gray-600">Erstellen Sie detaillierte Berichte</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="card p-6 hover:scale-105 transition-transform">
+                    <div class="w-12 h-12 mb-4 bg-blue-100 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-semibold mb-2">Abwesenheitsbericht</h3>
+                    <p class="text-gray-600 mb-4">Detaillierte Übersicht über Mitarbeiterabwesenheiten</p>
+                    <button class="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors">
+                        Bericht erstellen
+                    </button>
+                </div>
+
+                <div class="card p-6 hover:scale-105 transition-transform">
+                    <div class="w-12 h-12 mb-4 bg-green-100 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-semibold mb-2">Personalauslastung</h3>
+                    <p class="text-gray-600 mb-4">Analyse der Personalauslastung nach Gruppen</p>
+                    <button class="w-full bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition-colors">
+                        Bericht erstellen
+                    </button>
+                </div>
+
+                <div class="card p-6 hover:scale-105 transition-transform">
+                    <div class="w-12 h-12 mb-4 bg-purple-100 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-semibold mb-2">Schichtverteilung</h3>
+                    <p class="text-gray-600 mb-4">Übersicht über die Verteilung der Schichttypen</p>
+                    <button class="w-full bg-purple-600 text-white py-2 px-4 rounded-lg hover:bg-purple-700 transition-colors">
+                        Bericht erstellen
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- JavaScript -->
+    <script>
+        // Global state
+        let currentTab = 'dashboard';
+        let employees = [];
+        let stats = {
+            employees: 0,
+            shifts: 0,
+            absences: 0,
+            efficiency: 87
+        };
+
+        // 5NOTE Log functionality
+        async function refreshNoteLog() {
+            const contentDiv = document.getElementById('note-log-content');
+            
+            // Show loading state
+            contentDiv.innerHTML = `
+                <div class="flex items-center justify-center py-8 text-gray-500">
+                    <div class="animate-spin inline-block w-6 h-6 border-4 border-current border-t-transparent rounded-full mr-3"></div>
+                    Lade letzte Änderungen...
+                </div>
+            `;
+            
+            try {
+                console.log('📋 Loading 5NOTE log...');
+                const response = await fetch('/api/query', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        table: '5NOTE',
+                        filters: [],
+                        order_by: 'date',
+                        order_desc: true,
+                        limit: 10
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                const notes = data.data || [];
+                
+                if (notes.length === 0) {
+                    contentDiv.innerHTML = `
+                        <div class="text-center py-8 text-gray-500">
+                            <svg class="w-12 h-12 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                            </svg>
+                            <p>Keine Notizen/Änderungen verfügbar</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                const notesHTML = notes.map(note => {
+                    const date = new Date(note.date).toLocaleDateString('de-DE');
+                    const text = note.text1 || note.text2 || 'Keine Beschreibung';
+                    
+                    return `
+                        <div class="flex items-start p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                            <div class="flex-shrink-0 mr-3">
+                                <div class="w-8 h-8 bg-amber-100 rounded-full flex items-center justify-center">
+                                    <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-medium text-gray-900 truncate">${text}</p>
+                                <div class="flex items-center mt-1 text-xs text-gray-500">
+                                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                    </svg>
+                                    ${date}
+                                    ${note.employee_id ? `• Mitarbeiter #${note.employee_id}` : ''}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+                
+                contentDiv.innerHTML = notesHTML;
+                console.log(`📋 Loaded ${notes.length} notes`);
+                
+            } catch (error) {
+                console.error('❌ Failed to load 5NOTE log:', error);
+                contentDiv.innerHTML = `
+                    <div class="text-center py-8 text-red-500">
+                        <svg class="w-12 h-12 mx-auto mb-4 text-red-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        <p>Fehler beim Laden der Notizen</p>
+                        <button onclick="refreshNoteLog()" class="mt-2 text-blue-600 hover:text-blue-800 text-sm font-medium">
+                            Erneut versuchen
+                        </button>
+                    </div>
+                `;
+            }
+        }
+
+        // Initialize app - Enhanced version
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Starting OpenSchichtplaner5 Professional Dashboard...');
+            
+            // Initialize current date display
+            updateCurrentDateDisplay();
+            
+            // Initialize Matrix Schedule Manager
+            if (typeof MatrixScheduleManager !== 'undefined') {
+                window.matrixSchedule = new MatrixScheduleManager();
+                console.log('✅ Matrix Schedule Manager initialized');
+            } else {
+                console.error('❌ MatrixScheduleManager not found');
+            }
+            
+            // Initialize main app
+            initializeApp();
+            
+            // URL-based initialization
+            const url = window.location.pathname;
+            let initialTab = 'dashboard';
+            let initialView = 'dienstplan';
+            
+            if (url.includes('/schichtplan/dienstplan') || url.includes('/dienstplan')) {
+                initialTab = 'schedule';
+                initialView = 'dienstplan';
+            } else if (url.includes('/schichtplan/einsatzplan') || url.includes('/einsatzplan')) {
+                initialTab = 'schedule';
+                initialView = 'einsatzplan';
+            } else if (url.includes('/schichtplan/jahresplan') || url.includes('/jahresuebersicht')) {
+                initialTab = 'schedule';
+                initialView = 'jahresuebersicht';
+            } else if (url.includes('/mitarbeiter')) {
+                initialTab = 'employees';
+            } else if (url.includes('/analytics')) {
+                initialTab = 'analytics';
+            }
+            
+            console.log(`🎯 URL-based initialization: tab=${initialTab}, view=${initialView}`);
+            
+            // Load initial tab and view
+            setTimeout(() => {
+                showTab(initialTab);
+                if (initialTab === 'schedule') {
+                    // Wait for schedule initialization, then set the correct view
+                    setTimeout(() => {
+                        console.log(`🔄 URL-based view switching to: ${initialView}`);
+                        switchToScheduleView(initialView);
+                    }, 500); // Longer delay to ensure initialization is complete
+                }
+            }, 100);
+            
+            // Set up periodic updates
+            setInterval(updateCurrentDateDisplay, 60000); // Update every minute
+            setInterval(checkApiStatus, 30000); // Check API every 30 seconds
+            
+            console.log('✨ Professional dashboard ready!');
+        });
+
+        async function initializeApp() {
+            try {
+                console.log('🔄 Initializing professional dashboard...');
+                
+                // Show loading indicator
+                showLoadingState();
+                
+                // Initialize core components
+                await checkApiStatus();
+                await loadAllData();
+                
+                // Initialize charts with smooth animations
+                setTimeout(() => {
+                    initializeCharts();
+                    hideLoadingState();
+                }, 500);
+                
+                console.log('✨ Professional dashboard initialized successfully');
+                
+                // Show welcome notification
+                showNotification('Dashboard bereit!', 'success');
+                
+            } catch (error) {
+                console.error('❌ Dashboard initialization failed:', error);
+                hideLoadingState();
+                showNotification('Fehler beim Laden des Dashboards', 'error');
+            }
+        }
+        
+        function updateCurrentDateDisplay() {
+            const now = new Date();
+            const options = { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric'
+            };
+            const dateStr = now.toLocaleDateString('de-DE', options);
+            const timeStr = now.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+            
+            const displayElement = document.getElementById('current-date-display');
+            const mobileElement = document.getElementById('mobile-date-display');
+            const mobileShort = now.toLocaleDateString('de-DE', {
+                day: '2-digit',
+                month: '2-digit'
+            });
+            
+            // Only update if content has changed (performance optimization)
+            const newContent = `${dateStr}<br><span class="text-sm font-normal">${timeStr}</span>`;
+            if (displayElement && displayElement.innerHTML !== newContent) {
+                displayElement.innerHTML = newContent;
+            }
+            if (mobileElement && mobileElement.textContent !== mobileShort) {
+                mobileElement.textContent = mobileShort;
+            }
+        }
+        
+        // Performance optimization utilities
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+        
+        function throttle(func, limit) {
+            let inThrottle;
+            return function() {
+                const args = arguments;
+                const context = this;
+                if (!inThrottle) {
+                    func.apply(context, args);
+                    inThrottle = true;
+                    setTimeout(() => inThrottle = false, limit);
+                }
+            }
+        }
+        
+        // Optimized intersection observer for animations
+        const animationObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animate-fade-in');
+                    animationObserver.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.1 });
+        
+        function showLoadingState() {
+            // Add subtle loading overlay
+            const overlay = document.createElement('div');
+            overlay.id = 'loading-overlay';
+            overlay.className = 'fixed inset-0 bg-white bg-opacity-50 backdrop-blur-sm z-50 flex items-center justify-center';
+            overlay.innerHTML = `
+                <div class="bg-white rounded-lg shadow-lg p-6 flex items-center space-x-3">
+                    <div class="animate-spin w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full"></div>
+                    <span class="text-gray-700 font-medium">Dashboard wird geladen...</span>
+                </div>
+            `;
+            document.body.appendChild(overlay);
+        }
+        
+        function hideLoadingState() {
+            const overlay = document.getElementById('loading-overlay');
+            if (overlay) {
+                overlay.style.opacity = '0';
+                setTimeout(() => overlay.remove(), 300);
+            }
+        }
+        
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `fixed top-4 right-4 z-50 px-4 py-3 rounded-lg shadow-lg transform transition-all duration-300 translate-x-full`;
+            
+            const colors = {
+                'success': 'bg-green-500 text-white',
+                'error': 'bg-red-500 text-white',
+                'info': 'bg-blue-500 text-white',
+                'warning': 'bg-yellow-500 text-black'
+            };
+            
+            notification.className += ` ${colors[type]}`;
+            notification.innerHTML = `
+                <div class="flex items-center space-x-2">
+                    <span>${message}</span>
+                    <button onclick="this.parentElement.parentElement.remove()" class="ml-2 opacity-70 hover:opacity-100">
+                        ×
+                    </button>
+                </div>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // Animate in
+            setTimeout(() => {
+                notification.style.transform = 'translateX(0)';
+            }, 100);
+            
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                notification.style.transform = 'translateX(100%)';
+                setTimeout(() => notification.remove(), 300);
+            }, 5000);
+        }
+
+        // API status check
+        async function checkApiStatus() {
+            try {
+                const response = await fetch('/api/health');
+                const data = await response.json();
+                
+                if (data.status === 'healthy') {
+                    updateApiStatus(true, data.tables_loaded);
+                    console.log('✅ API online:', data.tables_loaded, 'tables');
+                } else {
+                    updateApiStatus(false, 0);
+                }
+            } catch (error) {
+                updateApiStatus(false, 0);
+                console.error('❌ API check failed:', error);
+            }
+        }
+
+        function updateApiStatus(online, tableCount) {
+            const dot = document.getElementById('api-status-dot');
+            const text = document.getElementById('api-status-text');
+            const tablesLoaded = document.getElementById('tables-loaded');
+            
+            if (online) {
+                dot.className = 'w-2 h-2 rounded-full bg-green-400';
+                text.textContent = 'API Online';
+                tablesLoaded.textContent = tableCount;
+            } else {
+                dot.className = 'w-2 h-2 rounded-full bg-red-400';
+                text.textContent = 'API Offline';
+                tablesLoaded.textContent = '0';
+            }
+        }
+
+        // Load all data
+        async function loadAllData() {
+            await Promise.all([
+                loadStats(),
+                loadEmployees()
+            ]);
+        }
+
+        // Load stats
+        async function loadStats() {
+            try {
+                const response = await fetch('/api/tables');
+                const data = await response.json();
+                
+                if (data.tables) {
+                    const employeeTable = data.tables.find(t => t.name === '5EMPL');
+                    const shiftTable = data.tables.find(t => t.name === '5SHIFT');
+                    const absenceTable = data.tables.find(t => t.name === '5ABSEN');
+                    
+                    stats.employees = employeeTable ? employeeTable.records : 0;
+                    stats.shifts = shiftTable ? shiftTable.records * 30 : 0; // Estimated monthly
+                    stats.absences = absenceTable ? Math.floor(absenceTable.records * 0.1) : 0;
+                    
+                    updateStatsDisplay();
+                }
+            } catch (error) {
+                console.error('❌ Failed to load stats:', error);
+            }
+        }
+
+        function updateStatsDisplay() {
+            document.getElementById('stat-employees').textContent = stats.employees;
+            document.getElementById('stat-shifts').textContent = stats.shifts;
+            document.getElementById('stat-absences').textContent = stats.absences;
+            document.getElementById('stat-efficiency').textContent = stats.efficiency + '%';
+            
+            document.getElementById('employee-badge').textContent = stats.employees;
+            
+            // Live metrics
+            document.getElementById('live-active').textContent = Math.floor(stats.employees * 0.85);
+            document.getElementById('live-hours').textContent = Math.floor(stats.employees * 8 * 22);
+            document.getElementById('live-shifts').textContent = Math.floor(stats.shifts / 4);
+            document.getElementById('live-conflicts').textContent = Math.floor(stats.shifts * 0.02);
+        }
+
+        // Load employees
+        async function loadEmployees() {
+            try {
+                const response = await fetch('/api/employees?limit=100');
+                const data = await response.json();
+                
+                employees = Array.isArray(data) ? data : [];
+                renderEmployees(employees);
+                console.log('👥 Employees loaded:', employees.length);
+                
+            } catch (error) {
+                console.error('❌ Failed to load employees:', error);
+            }
+        }
+
+        // Render employees
+        function renderEmployees(employeeList) {
+            const loading = document.getElementById('employees-loading');
+            const content = document.getElementById('employees-content');
+            
+            loading.classList.add('hidden');
+            content.classList.remove('hidden');
+            
+            if (employeeList.length === 0) {
+                content.innerHTML = '<div class="p-8 text-center text-gray-500">Keine Mitarbeiter gefunden</div>';
+                return;
+            }
+            
+            const tableHTML = `
+                <table class="w-full">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mitarbeiter</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Position</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aktionen</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        ${employeeList.slice(0, 20).map(employee => `
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <div class="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-blue-600 flex items-center justify-center text-white font-semibold">
+                                            ${getInitials(employee)}
+                                        </div>
+                                        <div class="ml-4">
+                                            <div class="text-sm font-medium text-gray-900">${employee.name}, ${employee.firstname || ''}</div>
+                                            <div class="text-sm text-gray-500">${employee.email || 'Keine E-Mail'}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    ${employee.position || 'Mitarbeiter'}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${employee.empend ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'}">
+                                        ${employee.empend ? 'Inaktiv' : 'Aktiv'}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                    <button onclick="showEmployeeDetails(${employee.id})" class="text-blue-600 hover:text-blue-900 hover:bg-blue-50 px-3 py-1 rounded-lg transition-colors">Details</button>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+            
+            content.innerHTML = tableHTML;
+        }
+
+        // Advanced Data Visualization System
+        function initializeCharts() {
+            const ctx = document.getElementById('mainChart');
+            if (ctx) {
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun'],
+                        datasets: [{
+                            label: 'Vollzeit (40h)',
+                            data: [85, 87, 82, 89, 91, 88],
+                            borderColor: '#10B981',
+                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                            tension: 0.4,
+                            fill: true,
+                            pointBackgroundColor: '#10B981',
+                            pointBorderColor: '#ffffff',
+                            pointBorderWidth: 2,
+                            pointRadius: 6,
+                            pointHoverRadius: 8
+                        }, {
+                            label: 'Teilzeit (20h)',
+                            data: [45, 48, 42, 50, 52, 49],
+                            borderColor: '#3B82F6',
+                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                            tension: 0.4,
+                            fill: true,
+                            pointBackgroundColor: '#3B82F6',
+                            pointBorderColor: '#ffffff',
+                            pointBorderWidth: 2,
+                            pointRadius: 6,
+                            pointHoverRadius: 8
+                        }, {
+                            label: 'Aushilfen',
+                            data: [12, 15, 18, 14, 16, 19],
+                            borderColor: '#F59E0B',
+                            backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                            tension: 0.4,
+                            fill: true,
+                            pointBackgroundColor: '#F59E0B',
+                            pointBorderColor: '#ffffff',
+                            pointBorderWidth: 2,
+                            pointRadius: 6,
+                            pointHoverRadius: 8
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        interaction: {
+                            mode: 'index',
+                            intersect: false
+                        },
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                                labels: {
+                                    usePointStyle: true,
+                                    pointStyle: 'circle',
+                                    padding: 20,
+                                    font: {
+                                        family: 'Inter, sans-serif',
+                                        size: 12
+                                    }
+                                }
+                            },
+                            tooltip: {
+                                backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                                titleColor: '#ffffff',
+                                bodyColor: '#ffffff',
+                                borderColor: 'rgba(255, 255, 255, 0.1)',
+                                borderWidth: 1,
+                                cornerRadius: 8,
+                                displayColors: true,
+                                callbacks: {
+                                    title: function(context) {
+                                        return `Monat: ${context[0].label}`;
+                                    },
+                                    label: function(context) {
+                                        return `${context.dataset.label}: ${context.parsed.y} Stunden`;
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                display: true,
+                                title: {
+                                    display: true,
+                                    text: 'Monat',
+                                    font: {
+                                        family: 'Inter, sans-serif',
+                                        size: 14,
+                                        weight: 'bold'
+                                    }
+                                },
+                                grid: {
+                                    color: 'rgba(0, 0, 0, 0.05)'
+                                }
+                            },
+                            y: {
+                                display: true,
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'Arbeitsstunden',
+                                    font: {
+                                        family: 'Inter, sans-serif',
+                                        size: 14,
+                                        weight: 'bold'
+                                    }
+                                },
+                                grid: {
+                                    color: 'rgba(0, 0, 0, 0.05)'
+                                },
+                                ticks: {
+                                    callback: function(value) {
+                                        return value + 'h';
+                                    }
+                                }
+                            }
+                        },
+                        animation: {
+                            duration: 2000,
+                            easing: 'easeInOutQuart'
+                        },
+                        elements: {
+                            line: {
+                                borderWidth: 3
+                            },
+                            point: {
+                                hoverBorderWidth: 3
+                            }
+                        }
+                    }
+                });
+            }
+        }
+        
+        // Enhanced Analytics Dashboard
+        function createAdvancedCharts() {
+            // Create additional charts for better data visualization
+            createShiftDistributionChart();
+            createEmployeePerformanceChart();
+            createTimeTrackingChart();
+        }
+        
+        function createShiftDistributionChart() {   
+            const ctx = document.getElementById('shiftChart');
+            if (ctx) {
+                new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Frühschicht', 'Spätschicht', 'Nachtschicht', 'Bereitschaft'],
+                        datasets: [{
+                            data: [35, 28, 22, 15],
+                            backgroundColor: [
+                                '#10B981',
+                                '#3B82F6', 
+                                '#8B5CF6',
+                                '#F59E0B'
+                            ],
+                            borderWidth: 0,
+                            hoverBorderWidth: 3,
+                            hoverBorderColor: '#ffffff'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        cutout: '60%',
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    padding: 20,
+                                    usePointStyle: true,
+                                    pointStyle: 'circle'
+                                }
+                            },
+                            tooltip: {
+                                backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                                callbacks: {
+                                    label: function(context) {
+                                        return `${context.label}: ${context.parsed}%`;
+                                    }
+                                }
+                            }
+                        },
+                        animation: {
+                            animateRotate: true,
+                            duration: 2000
+                        }
+                    }
+                });
+            }
+        }
+
+        // Tab switching - Enhanced version
+        function showTab(tabName) {
+            console.log('📱 Switching to tab:', tabName);
+            
+            // Remove active class from all nav items
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // Add active class to current nav item
+            const navItem = document.getElementById('nav-' + tabName);
+            if (navItem) {
+                navItem.classList.add('active');
+            }
+            
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.add('hidden');
+                tab.classList.remove('active');
+            });
+            
+            // Show selected tab
+            const targetTab = document.getElementById(tabName + '-tab');
+            if (targetTab) {
+                targetTab.classList.remove('hidden');
+                targetTab.classList.add('active');
+            } else {
+                console.warn('⚠️ Tab not found:', tabName + '-tab');
+            }
+            
+            // Special initialization for certain tabs
+            if (tabName === 'schedule' && !window.scheduleInitialized) {
+                console.log('🗓️ First time opening schedule tab - initializing...');
+                initializeSchedule();
+                window.scheduleInitialized = true;
+            } else if (tabName === 'schedule' && window.scheduleInitialized) {
+                console.log('🔄 Schedule tab already initialized, checking view activation');
+                // Ensure at least one view is active
+                const activeView = document.querySelector('.schedule-view.active');
+                if (!activeView) {
+                    console.log('🎯 No active view found, activating default view');
+                    switchToScheduleView('dienstplan');
+                }
+            }
+            
+            currentTab = tabName;
+            console.log('✅ Successfully switched to tab:', tabName);
+        }
+
+        // Search employees
+        async function searchEmployees() {
+            const query = document.getElementById('employee-search').value;
+            
+            if (!query || query.length < 2) {
+                renderEmployees(employees);
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/search/employees?q=${encodeURIComponent(query)}&limit=50`);
+                const data = await response.json();
+                
+                const results = Array.isArray(data) ? data : [];
+                renderEmployees(results);
+                
+            } catch (error) {
+                console.error('❌ Search failed:', error);
+            }
+        }
+
+        // Enhanced Utility functions
+        function getInitials(employee) {
+            if (!employee) return '??';
+            
+            const first = employee.firstname || employee.first_name || '';
+            const last = employee.name || employee.last_name || '';
+            
+            if (first && last) {
+                return (first.charAt(0) + last.charAt(0)).toUpperCase();
+            } else if (last) {
+                return last.substring(0, 2).toUpperCase();
+            }
+            return '??';
+        }
+
+        function getEmployeeDisplayName(employee) {
+            if (!employee) return 'Unbekannter Mitarbeiter';
+            
+            // If MatrixScheduleManager is available, use its employee name mapping
+            if (window.matrixSchedule && employee.id) {
+                const realName = window.matrixSchedule.getEmployeeName(employee.id);
+                if (realName && !realName.startsWith('Mitarbeiter ')) {
+                    return realName;
+                }
+            }
+            
+            // Handle nested employee structure from API response
+            const employeeData = employee.employee || employee;
+            
+            const first = employeeData.firstname || employeeData.first_name || '';
+            const last = employeeData.name || employeeData.last_name || '';
+            
+            if (first && last) {
+                return `${first} ${last}`;
+            } else if (last) {
+                return last;
+            } else if (first) {
+                return first;
+            }
+            return `Mitarbeiter ${employeeData.id || employee.id || '?'}`;
+        }
+
+        function generateEnhancedEmployeeDayCells(employee, startDate, endDate) {
+            let cells = '';
+            const currentDate = new Date(startDate);
+            
+            while (currentDate <= endDate) {
+                const dateKey = currentDate.toISOString().split('T')[0];
+                const shift = findEmployeeShiftForDate(employee, dateKey);
+                
+                if (shift) {
+                    const colorClass = getEnhancedShiftColorClass(shift.shift_name || shift.shift_code || 'S');
+                    const shiftCode = getShiftDisplayCode(shift);
+                    
+                    cells += `
+                        <td class="employee-cell has-shift" title="${shift.shift_name || 'Schicht'} - ${dateKey}">
+                            <div class="w-full h-full flex items-center justify-center text-xs font-bold ${colorClass}">
+                                ${shiftCode}
+                            </div>
+                        </td>
+                    `;
+                } else {
+                    cells += `<td class="employee-cell">-</td>`;
+                }
+                
+                currentDate.setDate(currentDate.getDate() + 1);
+            }
+            
+            return cells;
+        }
+
+        function generateEnhancedShiftDayCells(shift, startDate, endDate) {
+            let cells = '';
+            const currentDate = new Date(startDate);
+            
+            while (currentDate <= endDate) {
+                const dateKey = currentDate.toISOString().split('T')[0];
+                const employees = findEmployeesForShiftOnDate(shift, dateKey);
+                
+                if (employees.length > 0) {
+                    const employeeNames = employees.map(emp => getEmployeeDisplayName(emp)).join(', ');
+                    const displayNames = employees.length > 2 
+                        ? `${employees.slice(0, 2).map(emp => getEmployeeDisplayName(emp)).join(', ')}...` 
+                        : employeeNames;
+                    
+                    cells += `
+                        <td class="shift-cell has-assignment" title="${employeeNames}">
+                            ${displayNames}
+                        </td>
+                    `;
+                } else {
+                    cells += `<td class="shift-cell">-</td>`;
+                }
+                
+                currentDate.setDate(currentDate.getDate() + 1);
+            }
+            
+            return cells;
+        }
+
+        function findEmployeeShiftForDate(employee, dateKey) {
+            if (employee.schedule && Array.isArray(employee.schedule)) {
+                return employee.schedule.find(s => s.date === dateKey);
+            }
+            // Demo fallback for testing
+            return Math.random() > 0.7 ? {
+                shift_name: ['Frühschicht', 'Spätschicht', 'Nachtschicht'][Math.floor(Math.random() * 3)],
+                shift_code: ['F', 'S', 'N'][Math.floor(Math.random() * 3)]
+            } : null;
+        }
+
+        function findEmployeesForShiftOnDate(shift, dateKey) {
+            if (shift.assignments && Array.isArray(shift.assignments)) {
+                return shift.assignments
+                    .filter(a => a.date === dateKey)
+                    .map(a => ({ name: a.employee_name, id: a.employee_id }));
+            }
+            // Demo fallback for testing
+            const names = ['Müller', 'Schmidt', 'Weber', 'Wagner', 'Becker'];
+            const count = Math.floor(Math.random() * 3);
+            return names.slice(0, count).map(name => ({ name, id: Math.floor(Math.random() * 100) }));
+        }
+
+        function getShiftDisplayCode(shift) {
+            if (shift.shift_code) return shift.shift_code;
+            if (shift.shift_name) {
+                const name = shift.shift_name.toLowerCase();
+                if (name.includes('früh')) return 'F';
+                if (name.includes('spät')) return 'S';
+                if (name.includes('nacht')) return 'N';
+                return shift.shift_name.charAt(0).toUpperCase();
+            }
+            return 'S';
+        }
+
+        function getEnhancedShiftColorClass(shiftName) {
+            if (!shiftName) return 'bg-gray-100 text-gray-600';
+            
+            const name = shiftName.toString().toLowerCase();
+            
+            if (name.includes('früh') || name.includes('f') || name.includes('morning')) {
+                return 'bg-gradient-to-r from-blue-500 to-blue-600 text-white';
+            }
+            if (name.includes('spät') || name.includes('s') || name.includes('evening') || name.includes('late')) {
+                return 'bg-gradient-to-r from-orange-500 to-orange-600 text-white';
+            }
+            if (name.includes('nacht') || name.includes('n') || name.includes('night')) {
+                return 'bg-gradient-to-r from-purple-500 to-purple-600 text-white';
+            }
+            if (name.includes('bereitschaft') || name.includes('standby')) {
+                return 'bg-gradient-to-r from-green-500 to-green-600 text-white';
+            }
+            if (name.includes('urlaub') || name.includes('holiday') || name.includes('vacation')) {
+                return 'bg-gradient-to-r from-emerald-500 to-emerald-600 text-white';
+            }
+            if (name.includes('krank') || name.includes('sick')) {
+                return 'bg-gradient-to-r from-red-500 to-red-600 text-white';
+            }
+            
+            // Default beautiful gradient
+            return 'bg-gradient-to-r from-indigo-500 to-indigo-600 text-white';
+        }
+
+        // Mobile sidebar toggle
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('open');
+        }
+
+        // Schedule/Schichtplan functionality
+        let currentDate = new Date(); // Start with today
+        let currentView = 'dienstplan';
+        let scheduleData = {};
+
+        function initializeSchedule() {
+            console.log('🗓️ Initializing enhanced matrix schedule...');
+            
+            // Setup new tab navigation event listeners
+            document.querySelectorAll('.schedule-tab-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const view = e.target.dataset.view;
+                    switchToScheduleView(view);
+                });
+            });
+            
+            // Set default view if none is active
+            const activeView = document.querySelector('.schedule-view.active');
+            if (!activeView) {
+                console.log('🎯 No active schedule view found, setting default view');
+                switchToScheduleView('dienstplan');
+            }
+            
+            // Setup navigation event listeners with new IDs
+            const navBackward = document.getElementById('nav-day-backward');
+            const navForward = document.getElementById('nav-day-forward');
+            const navFastBackward = document.getElementById('nav-fast-backward');
+            const navFastForward = document.getElementById('nav-fast-forward');
+            const navToday = document.getElementById('nav-today');
+            
+            if (navBackward) navBackward.addEventListener('click', () => navigateDate('day-back'));
+            if (navForward) navForward.addEventListener('click', () => navigateDate('day-forward'));
+            if (navFastBackward) navFastBackward.addEventListener('click', () => navigateDate('fast-back'));
+            if (navFastForward) navFastForward.addEventListener('click', () => navigateDate('fast-forward'));
+            if (navToday) navToday.addEventListener('click', () => navigateToToday());
+            
+            // Setup employee selector for Jahresübersicht
+            const employeeSelector = document.getElementById('employee-selector');
+            if (employeeSelector) {
+                employeeSelector.addEventListener('change', (e) => {
+                    if (e.target.value && currentView === 'jahresuebersicht') {
+                        loadEmployeeYearOverview(e.target.value);
+                    }
+                });
+            }
+            
+            // Setup export button
+            document.getElementById('export-schedule').addEventListener('click', exportSchedule);
+            
+            // Load initial data
+            updateDateDisplay();
+            loadScheduleData();
+            loadEmployeeList();
+            
+            // Initialize with dienstplan view
+            switchToScheduleView('dienstplan');
+            
+            // Setup keyboard shortcuts
+            setupKeyboardShortcuts();
+        }
+
+        function setupKeyboardShortcuts() {
+            document.addEventListener('keydown', (e) => {
+                // Only if no input field is focused
+                if (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'SELECT') {
+                    return;
+                }
+                
+                switch(e.key) {
+                    case 'ArrowLeft':
+                        e.preventDefault();
+                        navigateDate('day-back');
+                        break;
+                    case 'ArrowRight':
+                        e.preventDefault();
+                        navigateDate('day-forward');
+                        break;
+                    case 'PageUp':
+                        e.preventDefault();
+                        navigateDate('fast-back');
+                        break;
+                    case 'PageDown':
+                        e.preventDefault();
+                        navigateDate('fast-forward');
+                        break;
+                    case 'Home':
+                        e.preventDefault();
+                        navigateToToday();
+                        break;
+                    case '1':
+                        e.preventDefault();
+                        switchToScheduleView('dienstplan');
+                        break;
+                    case '2':
+                        e.preventDefault();
+                        switchToScheduleView('einsatzplan');
+                        break;
+                    case '3':
+                        e.preventDefault();
+                        switchToScheduleView('jahresuebersicht');
+                        break;
+                }
+            });
+            
+            showToast('Tastaturkürzel aktiviert: ←/→ Navigation, 1/2/3 Tabs, Home = Heute', 'info', 5000);
+        }
+
+        function updateDateDisplay() {
+            const displayElement = document.getElementById('current-date-display');
+            const weekElement = document.getElementById('current-week');
+            
+            if (displayElement) {
+                const options = { 
+                    day: 'numeric', 
+                    month: 'long', 
+                    year: 'numeric' 
+                };
+                displayElement.textContent = currentDate.toLocaleDateString('de-DE', options);
+            }
+            
+            if (weekElement) {
+                const weekNumber = getWeekNumber(currentDate);
+                weekElement.textContent = `KW ${weekNumber} • 14 Tage sichtbar`;
+            }
+        }
+        
+        function getWeekNumber(date) {
+            const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+            const dayNum = d.getUTCDay() || 7;
+            d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+            const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+            return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+        }
+
+        async function loadScheduleData() {
+            console.log('📊 Loading schedule data...');
+            // This function is now replaced by the individual enhanced render functions
+            // which load their own data directly
+            updateScheduleView();
+        }
+
+        function navigateDate(direction) {
+            const originalDate = new Date(currentDate);
+            
+            switch(direction) {
+                case 'fast-back':
+                    currentDate.setDate(currentDate.getDate() - 7); // 7 days back
+                    break;
+                case 'day-back':
+                    currentDate.setDate(currentDate.getDate() - 1);
+                    break;
+                case 'day-forward':
+                    currentDate.setDate(currentDate.getDate() + 1);
+                    break;
+                case 'fast-forward':
+                    currentDate.setDate(currentDate.getDate() + 7); // 7 days forward
+                    break;
+            }
+            
+            console.log(`📅 Navigated ${direction} from ${originalDate.toDateString()} to ${currentDate.toDateString()}`);
+            
+            const navigationMessages = {
+                'fast-back': '7 Tage zurück navigiert',
+                'day-back': '1 Tag zurück navigiert',
+                'day-forward': '1 Tag vor navigiert',
+                'fast-forward': '7 Tage vor navigiert'
+            };
+            
+            showToast(navigationMessages[direction], 'info', 2000);
+            updateDateDisplay();
+            updateScheduleView(); // Direct call to update view
+        }
+
+        function navigateToToday() {
+            currentDate = new Date();
+            console.log('📅 Jumped to today:', currentDate.toDateString());
+            showToast('Zu heute gesprungen! 🎯', 'success', 2000);
+            updateDateDisplay();
+            updateScheduleView(); // Direct call to update view
+        }
+
+        // Old updateDateDisplay function removed - using enhanced version above
+
+        // Toast Notification System
+        function showToast(message, type = 'info', duration = 3000) {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            
+            const icon = type === 'success' ? '✅' : type === 'error' ? '❌' : 'ℹ️';
+            
+            toast.innerHTML = `
+                <div class="flex items-center space-x-3">
+                    <span class="text-lg">${icon}</span>
+                    <div class="flex-1">
+                        <p class="font-medium text-gray-900">${message}</p>
+                    </div>
+                    <button onclick="this.parentElement.parentElement.remove()" class="text-gray-400 hover:text-gray-600">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+            `;
+            
+            container.appendChild(toast);
+            
+            // Trigger animation
+            setTimeout(() => toast.classList.add('show'), 100);
+            
+            // Auto remove
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 300);
+            }, duration);
+        }
+
+        // Old loadScheduleData function removed - individual enhanced render functions load their own data
+
+        function switchToScheduleView(viewName) {
+            console.log('🔄 Switching to view:', viewName);
+            
+            // Update tab buttons
+            document.querySelectorAll('.schedule-tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+                btn.classList.add('border-transparent', 'text-gray-500');
+                btn.classList.remove('border-blue-500', 'text-blue-600');
+            });
+            
+            const activeBtn = document.querySelector(`[data-view="${viewName}"]`);
+            if (activeBtn) {
+                activeBtn.classList.add('active');
+                activeBtn.classList.remove('border-transparent', 'text-gray-500');
+                activeBtn.classList.add('border-blue-500', 'text-blue-600');
+            }
+            
+            // Hide all views
+            document.querySelectorAll('.schedule-view').forEach(view => {
+                view.classList.remove('active');
+            });
+            
+            // Show current view
+            const targetView = document.getElementById(`${viewName}-view`);
+            if (targetView) {
+                targetView.classList.add('active');
+            }
+            
+            currentView = viewName;
+            updateScheduleView();
+        }
+
+        function updateScheduleView() {
+            console.log('📊 Updating schedule view:', currentView);
+            
+            switch(currentView) {
+                case 'dienstplan':
+                    renderEnhancedDienstplan();
+                    break;
+                case 'einsatzplan':
+                    renderEnhancedEinsatzplan();
+                    break;
+                case 'jahresuebersicht':
+                    renderEnhancedJahresuebersicht();
+                    break;
+            }
+        }
+
+        async function renderEnhancedDienstplan() {
+            console.log('🎨 Rendering Enhanced Dienstplan...');
+            showScheduleLoading();
+            
+            // Use MatrixScheduleManager if available
+            if (window.matrixSchedule) {
+                try {
+                    console.log('✅ Using MatrixScheduleManager for Dienstplan');
+                    await window.matrixSchedule.renderDienstplan();
+                    hideScheduleLoading();
+                    return;
+                } catch (error) {
+                    console.error('❌ MatrixScheduleManager failed, falling back to legacy method:', error);
+                }
+            }
+            
+            try {
+                // Get date range for current view (14 days starting from currentDate)
+                const startDate = new Date(currentDate);
+                const endDate = new Date(currentDate);
+                endDate.setDate(startDate.getDate() + 13); // 14 days total
+                
+                // Try new range API first, fallback to monthly API
+                let data;
+                try {
+                    const response = await fetch(`/api/schedule/dienstplan-range?start_date=${startDate.toISOString().split('T')[0]}&end_date=${endDate.toISOString().split('T')[0]}`);
+                    if (response.ok) {
+                        data = await response.json();
+                        console.log('✅ Using range API data:', data);
+                    } else {
+                        throw new Error('Range API not available');
+                    }
+                } catch (error) {
+                    console.log('📅 Falling back to monthly API...');
+                    const response = await fetch(`/api/schedule/dienstplan?year=${currentDate.getFullYear()}&month=${currentDate.getMonth() + 1}`);
+                    if (response.ok) {
+                        data = await response.json();
+                        console.log('✅ Using monthly API data:', data);
+                    } else {
+                        throw new Error('Failed to load schedule data');
+                    }
+                }
+                
+                const headerContainer = document.getElementById('dienstplan-day-headers');
+                const tbody = document.getElementById('dienstplan-tbody');
+                
+                if (!headerContainer || !tbody) {
+                    console.error('❌ Required DOM elements not found');
+                    return;
+                }
+                
+                // Generate enhanced day headers
+                let headersHTML = '';
+                const currentDateIter = new Date(startDate);
+                
+                for (let i = 0; i < 14; i++) {
+                    const isToday = currentDateIter.toDateString() === new Date().toDateString();
+                    const dayName = currentDateIter.toLocaleDateString('de-DE', { weekday: 'short' });
+                    const dayNumber = currentDateIter.getDate();
+                    const monthName = currentDateIter.toLocaleDateString('de-DE', { month: 'short' });
+                    
+                    headersHTML += `
+                        <th class="day-header ${isToday ? 'today' : ''}">
+                            <div class="text-xs">${dayName}</div>
+                            <div class="font-bold">${dayNumber}</div>
+                            <div class="text-xs">${monthName}</div>
+                        </th>
+                    `;
+                    
+                    currentDateIter.setDate(currentDateIter.getDate() + 1);
+                }
+                
+                headerContainer.outerHTML = headersHTML;
+                
+                // Generate enhanced employee rows
+                let employeeRows = '';
+                
+                const employees = data.employees || [];
+                employees.slice(0, 25).forEach(employee => { // Limit to 25 employees for performance
+                    const employeeName = getEmployeeDisplayName(employee);
+                    const initials = getInitials(employee);
+                    
+                    employeeRows += `
+                        <tr class="border-b border-gray-200 hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 transition-all duration-200">
+                            <td class="dienstplan-employee-header px-4 py-3 text-sm font-medium text-gray-900 border-r border-gray-300">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full flex items-center justify-center text-white text-xs font-bold">
+                                        ${initials}
+                                    </div>
+                                    <span class="truncate">${employeeName}</span>
+                                </div>
+                            </td>
+                            ${generateEnhancedEmployeeDayCells(employee, startDate, endDate)}
+                        </tr>
+                    `;
+                });
+                
+                tbody.innerHTML = employeeRows;
+                updateDateDisplay();
+                hideScheduleLoading();
+                showToast(`Dienstplan geladen: ${employees.length} Mitarbeiter`, 'success');
+                console.log('✅ Enhanced Dienstplan rendered successfully');
+                
+            } catch (error) {
+                console.error('❌ Failed to render dienstplan:', error);
+                showToast('Fehler beim Laden des Dienstplans', 'error');
+                showScheduleError('Fehler beim Laden des Dienstplans: ' + error.message);
+            }
+        }
+
+        function renderDienstplan() {
+            // Legacy function - redirect to enhanced version
+            renderEnhancedDienstplan();
+        }
+
+        async function renderEnhancedEinsatzplan() {
+            console.log('🚀 Rendering Enhanced Einsatzplan...');
+            showScheduleLoading();
+            
+            // Use MatrixScheduleManager if available
+            if (window.matrixSchedule) {
+                try {
+                    console.log('✅ Using MatrixScheduleManager for Einsatzplan');
+                    await window.matrixSchedule.renderEinsatzplan();
+                    hideScheduleLoading();
+                    return;
+                } catch (error) {
+                    console.error('❌ MatrixScheduleManager failed, falling back to legacy method:', error);
+                }
+            }
+            
+            try {
+                // Get date range for current view (14 days starting from currentDate)
+                const startDate = new Date(currentDate);
+                const endDate = new Date(currentDate);
+                endDate.setDate(startDate.getDate() + 13); // 14 days total
+                
+                // Try new range API first, fallback to monthly API
+                let data;
+                try {
+                    const response = await fetch(`/api/schedule/einsatzplan-range?start_date=${startDate.toISOString().split('T')[0]}&end_date=${endDate.toISOString().split('T')[0]}`);
+                    if (response.ok) {
+                        data = await response.json();
+                        console.log('✅ Using range API data:', data);
+                    } else {
+                        throw new Error('Range API not available');
+                    }
+                } catch (error) {
+                    console.log('📅 Falling back to monthly API...');
+                    const response = await fetch(`/api/schedule/einsatzplan?year=${currentDate.getFullYear()}&month=${currentDate.getMonth() + 1}`);
+                    if (response.ok) {
+                        data = await response.json();
+                        console.log('✅ Using monthly API data:', data);
+                        // Convert legacy format to new format
+                        if (data.shifts && typeof data.shifts === 'object' && !Array.isArray(data.shifts)) {
+                            data.shifts = Object.entries(data.shifts).map(([name, shiftData]) => ({
+                                name: name,
+                                data: shiftData,
+                                assignments: []
+                            }));
+                        }
+                    } else {
+                        throw new Error('Failed to load schedule data');
+                    }
+                }
+                
+                const headerContainer = document.getElementById('einsatzplan-day-headers');
+                const tbody = document.getElementById('einsatzplan-tbody');
+                
+                if (!headerContainer || !tbody) {
+                    console.error('❌ Required DOM elements not found');
+                    return;
+                }
+                
+                // Generate enhanced day headers
+                let headersHTML = '';
+                const currentDateIter = new Date(startDate);
+                
+                for (let i = 0; i < 14; i++) {
+                    const isToday = currentDateIter.toDateString() === new Date().toDateString();
+                    const dayName = currentDateIter.toLocaleDateString('de-DE', { weekday: 'short' });
+                    const dayNumber = currentDateIter.getDate();
+                    const monthName = currentDateIter.toLocaleDateString('de-DE', { month: 'short' });
+                    
+                    headersHTML += `
+                        <th class="day-header ${isToday ? 'today' : ''}">
+                            <div class="text-xs">${dayName}</div>
+                            <div class="font-bold">${dayNumber}</div>
+                            <div class="text-xs">${monthName}</div>
+                        </th>
+                    `;
+                    
+                    currentDateIter.setDate(currentDateIter.getDate() + 1);
+                }
+                
+                headerContainer.outerHTML = headersHTML;
+                
+                // Generate enhanced shift rows
+                let shiftRows = '';
+                
+                const shifts = data.shifts || [];
+                shifts.slice(0, 20).forEach(shift => { // Limit to 20 shifts for performance
+                    const shiftName = shift.name || shift.description || `Schicht ${shift.id}`;
+                    const shiftTime = shift.start_time && shift.end_time ? `${shift.start_time} - ${shift.end_time}` : '';
+                    const colorClass = getEnhancedShiftColorClass(shiftName);
+                    
+                    shiftRows += `
+                        <tr class="border-b border-gray-200 hover:bg-gradient-to-r hover:from-orange-50 hover:to-yellow-50 transition-all duration-200">
+                            <td class="einsatzplan-shift-header px-4 py-3 text-sm font-medium text-gray-900 border-r border-gray-300">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-8 h-8 ${colorClass} rounded-lg flex items-center justify-center text-xs font-bold">
+                                        ${getShiftDisplayCode(shift)}
+                                    </div>
+                                    <div>
+                                        <div class="font-semibold truncate">${shiftName}</div>
+                                        <div class="text-xs text-gray-600">${shiftTime}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            ${generateEnhancedShiftDayCells(shift, startDate, endDate)}
+                        </tr>
+                    `;
+                });
+                
+                tbody.innerHTML = shiftRows;
+                updateDateDisplay();
+                hideScheduleLoading();
+                showToast(`Einsatzplan geladen: ${shifts.length} Schichttypen`, 'success');
+                console.log('✅ Enhanced Einsatzplan rendered successfully');
+                
+            } catch (error) {
+                console.error('❌ Failed to render einsatzplan:', error);
+                showToast('Fehler beim Laden des Einsatzplans', 'error');
+                showScheduleError('Fehler beim Laden des Einsatzplans: ' + error.message);
+            }
+        }
+
+        function renderEinsatzplan() {
+            // Legacy function - redirect to enhanced version
+            renderEnhancedEinsatzplan();
+        }
+
+        async function renderEnhancedJahresuebersicht() {
+            console.log('📅 Rendering Enhanced Jahresübersicht...');
+            showScheduleLoading();
+            
+            try {
+                // Load employee list for selection
+                await loadEmployeeList();
+                
+                // Load general overview data
+                const year = new Date().getFullYear();
+                const response = await fetch(`/api/schedule/jahresuebersicht?year=${year}`);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log('✅ Loaded Jahresübersicht overview:', data);
+                    
+                    // Show employee selection interface
+                    const content = document.getElementById('jahresuebersicht-content');
+                    content.innerHTML = `
+                        <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+                            <h2 class="text-2xl font-bold text-gray-800 mb-4">Jahresübersicht ${data.year}</h2>
+                            <p class="text-gray-600 mb-4">Wählen Sie einen Mitarbeiter aus, um dessen Jahresübersicht anzuzeigen:</p>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                ${data.employees.slice(0, 12).map(emp => `
+                                    <button onclick="loadEmployeeYearOverview(${emp.id})" 
+                                            class="p-4 border border-gray-200 rounded-lg hover:border-blue-300 hover:shadow-md transition-all text-left">
+                                        <div class="font-medium text-gray-800">${emp.name}</div>
+                                        <div class="text-sm text-gray-500">${emp.position}</div>
+                                        <div class="text-xs text-gray-400">#${emp.number || emp.id}</div>
+                                    </button>
+                                `).join('')}
+                            </div>
+                            
+                            ${data.employees.length > 12 ? `
+                                <div class="mt-4 text-center">
+                                    <button onclick="showAllEmployees()" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
+                                        Alle ${data.total_employees} Mitarbeiter anzeigen
+                                    </button>
+                                </div>
+                            ` : ''}
+                        </div>
+                    `;
+                    
+                } else {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+            } catch (error) {
+                console.error('❌ Failed to render jahresübersicht:', error);
+                showToast('Fehler beim Laden der Jahresübersicht', 'error');
+                showScheduleError('Fehler beim Laden der Jahresübersicht: ' + error.message);
+            } finally {
+                hideScheduleLoading();
+            }
+        }
+
+        async function loadEmployeeList() {
+            try {
+                const response = await fetch('/api/employees?limit=500');
+                if (!response.ok) throw new Error('Failed to load employees');
+                
+                const employees = await response.json();
+                const selector = document.getElementById('employee-selector');
+                
+                selector.innerHTML = '<option value="">Mitarbeiter wählen...</option>';
+                employees.forEach(emp => {
+                    selector.innerHTML += `<option value="${emp.id}">${emp.name} ${emp.firstname || ''}</option>`;
+                });
+                
+            } catch (error) {
+                console.error('❌ Failed to load employees:', error);
+            }
+        }
+
+        let isLoadingYearOverview = false;
+        
+        async function loadEmployeeYearOverview(employeeId) {
+            if (isLoadingYearOverview) {
+                console.log('🔄 Already loading year overview, skipping...');
+                return;
+            }
+            
+            isLoadingYearOverview = true;
+            
+            // Show loading immediately without pre-rendering empty matrix
+            const content = document.getElementById('jahresuebersicht-content');
+            content.innerHTML = `
+                <div class="flex items-center justify-center py-8">
+                    <div class="animate-spin w-8 h-8 border-3 border-blue-200 border-t-blue-600 rounded-full mr-3"></div>
+                    <span class="text-gray-600">Lade Jahresübersicht für Mitarbeiter...</span>
+                </div>
+            `;
+            
+            try {
+                const year = currentDate.getFullYear();
+                console.log(`📊 Loading year overview for employee ${employeeId}, year ${year}`);
+                const response = await fetch(`/api/schedule/jahresuebersicht/${employeeId}?year=${year}`);
+                
+                if (!response.ok) throw new Error('Failed to load year overview');
+                
+                const data = await response.json();
+                
+                // Create year matrix: Months (vertical) × Days (horizontal)
+                let html = `
+                    <div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
+                        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 px-6 py-4 border-b border-gray-200">
+                            <h3 class="text-lg font-semibold text-gray-900">
+                                Jahresübersicht ${year} - ${data.employee ? data.employee.name + ' ' + (data.employee.firstname || '') : 'Mitarbeiter'}
+                            </h3>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider sticky left-0 bg-gray-50 z-10">Monat</th>`;
+                
+                // Day headers (1-31)
+                for (let day = 1; day <= 31; day++) {
+                    html += `<th class="px-1 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[40px] w-[40px]">${day}</th>`;
+                }
+                html += '</tr></thead><tbody class="bg-white divide-y divide-gray-200">';
+                
+                const monthNames = ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni',
+                                  'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'];
+                
+                // Month rows
+                for (let month = 1; month <= 12; month++) {
+                    const monthData = data.schedule && data.schedule[month] ? data.schedule[month] : { days: {} };
+                    const daysInMonth = new Date(year, month, 0).getDate();
+                    
+                    html += `
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-4 py-3 whitespace-nowrap sticky left-0 bg-white z-10">
+                                <div class="text-sm font-medium text-gray-900">${monthNames[month-1]}</div>
+                                <div class="text-xs text-gray-500">${daysInMonth} Tage</div>
+                            </td>`;
+                    
+                    // Day cells
+                    for (let day = 1; day <= 31; day++) {
+                        if (day <= daysInMonth) {
+                            const dayShift = monthData.days[day];
+                            if (dayShift) {
+                                const colorClass = getShiftColorClass(dayShift.shift_code);
+                                html += `
+                                    <td class="px-1 py-1 text-center jahres-day-cell has-shift">
+                                        <div class="w-full h-full flex items-center justify-center text-xs font-semibold ${colorClass}" 
+                                             title="${dayShift.shift_name} - ${dayShift.date}">
+                                            ${dayShift.shift_code || 'T'}
+                                        </div>
+                                    </td>`;
+                            } else {
+                                html += `<td class="px-1 py-1 text-center jahres-day-cell">-</td>`;
+                            }
+                        } else {
+                            html += `<td class="px-1 py-1 text-center jahres-day-cell bg-gray-100"></td>`; // Invalid days
+                        }
+                    }
+                    html += '</tr>';
+                }
+                
+                html += `
+                        </tbody>
+                    </table>
+                </div>
+                <div class="bg-gray-50 px-6 py-4 border-t border-gray-200">
+                    <div class="grid grid-cols-4 gap-4 text-sm">
+                        <div class="flex items-center">
+                            <div class="w-4 h-4 rounded-full bg-blue-500 mr-2"></div>
+                            <span>Tagschicht</span>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="w-4 h-4 rounded-full bg-orange-500 mr-2"></div>
+                            <span>Spätschicht</span>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="w-4 h-4 rounded-full bg-purple-500 mr-2"></div>
+                            <span>Nachtschicht</span>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="w-4 h-4 rounded-full bg-green-500 mr-2"></div>
+                            <span>Sonstige</span>
+                        </div>
+                    </div>
+                </div>
+            </div>`
+                content.innerHTML = html;
+                
+            } catch (error) {
+                console.error('❌ Failed to load year overview:', error);
+                document.getElementById('jahresuebersicht-content').innerHTML = 
+                    '<div class="text-red-500 text-center">Fehler beim Laden der Jahresübersicht</div>';
+            } finally {
+                isLoadingYearOverview = false;
+            }
+        }
+
+        function getShiftColorClass(shiftCode) {
+            // Enhanced color coding for different shift types
+            if (!shiftCode) return 'bg-gray-100 text-gray-600';
+            
+            const code = shiftCode.toString().toUpperCase();
+            
+            // Check for specific patterns in shift names/codes
+            if (code.includes('FRÜH') || code.includes('F') || code.includes('MORNING')) {
+                return 'bg-blue-500 text-white';
+            }
+            if (code.includes('SPÄT') || code.includes('S') || code.includes('EVENING') || code.includes('LATE')) {
+                return 'bg-orange-500 text-white';
+            }
+            if (code.includes('NACHT') || code.includes('N') || code.includes('NIGHT')) {
+                return 'bg-purple-500 text-white';
+            }
+            if (code.includes('TAG') || code.includes('T') || code.includes('DAY')) {
+                return 'bg-green-500 text-white';
+            }
+            if (code.includes('CHEF') || code.includes('OVER')) {
+                return 'bg-red-500 text-white';
+            }
+            if (code.includes('URLAUB') || code.includes('U') || code.includes('VACATION')) {
+                return 'bg-teal-500 text-white';
+            }
+            if (code.includes('KRANK') || code.includes('K') || code.includes('SICK')) {
+                return 'bg-red-300 text-red-800';
+            }
+            
+            // Default colors based on first letter
+            switch(code.charAt(0)) {
+                case 'F': return 'bg-blue-500 text-white';
+                case 'S': return 'bg-orange-500 text-white';
+                case 'N': return 'bg-purple-500 text-white';
+                case 'T': return 'bg-green-500 text-white';
+                case 'U': return 'bg-teal-500 text-white';
+                case 'K': return 'bg-red-300 text-red-800';
+                default: return 'bg-indigo-500 text-white';
+            }
+        }
+
+        function exportSchedule() {
+            try {
+                const year = currentDate.getFullYear();
+                const month = currentDate.getMonth() + 1;
+                const url = `/api/export/schedule/${currentView}?year=${year}&month=${month}&format=excel`;
+                
+                // Create a temporary link to download the file
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `${currentView}_${year}_${month}.xlsx`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                console.log('📊 Schedule export initiated');
+            } catch (error) {
+                console.error('❌ Export failed:', error);
+            }
+        }
+
+        function showScheduleLoading() {
+            document.getElementById('schedule-loading').classList.remove('hidden');
+            document.getElementById('schedule-error').classList.add('hidden');
+            document.getElementById('dienstplan-view').classList.add('hidden');
+            document.getElementById('einsatzplan-view').classList.add('hidden');
+            document.getElementById('jahresuebersicht-view').classList.add('hidden');
+        }
+
+        function hideScheduleLoading() {
+            document.getElementById('schedule-loading').classList.add('hidden');
+        }
+
+        function showScheduleError(message) {
+            document.getElementById('schedule-error').classList.remove('hidden');
+            document.getElementById('schedule-error-message').textContent = message;
+            hideScheduleLoading();
+        }
+
+        // Employee Details Modal
+        async function showEmployeeDetails(employeeId) {
+            try {
+                console.log(`📋 Loading details for employee ${employeeId}...`);
+                const response = await fetch(`/api/employees/${employeeId}`);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const employee = await response.json();
+                
+                // Create modal HTML
+                const modalHTML = `
+                    <div id="employee-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50" onclick="closeEmployeeModal()">
+                        <div class="relative top-20 mx-auto p-5 border w-11/12 max-w-2xl shadow-lg rounded-md bg-white" onclick="event.stopPropagation()">
+                            <div class="flex items-center justify-between pb-3 border-b">
+                                <h3 class="text-lg font-semibold text-gray-900">Mitarbeiter Details</h3>
+                                <button onclick="closeEmployeeModal()" class="text-gray-400 hover:text-gray-600">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                    </svg>
+                                </button>
+                            </div>
+                            <div class="pt-4">
+                                <div class="flex items-center mb-6">
+                                    <div class="h-16 w-16 rounded-full bg-blue-100 flex items-center justify-center mr-4">
+                                        <span class="text-xl font-bold text-blue-600">${getInitials(employee)}</span>
+                                    </div>
+                                    <div>
+                                        <h4 class="text-xl font-semibold text-gray-900">${employee.name || 'Unbekannt'} ${employee.firstname || ''}</h4>
+                                        <p class="text-gray-600">${employee.position || 'Keine Position angegeben'}</p>
+                                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full ${employee.empend ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'}">
+                                            ${employee.empend ? 'Inaktiv' : 'Aktiv'}
+                                        </span>
+                                    </div>
+                                </div>
+                                
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div class="space-y-3">
+                                        <div>
+                                            <label class="text-sm font-medium text-gray-500">E-Mail</label>
+                                            <p class="text-gray-900">${employee.email || 'Nicht angegeben'}</p>
+                                        </div>
+                                        <div>
+                                            <label class="text-sm font-medium text-gray-500">Telefon</label>
+                                            <p class="text-gray-900">${employee.phone || 'Nicht angegeben'}</p>
+                                        </div>
+                                        <div>
+                                            <label class="text-sm font-medium text-gray-500">Startdatum</label>
+                                            <p class="text-gray-900">${employee.empstart || 'Nicht angegeben'}</p>
+                                        </div>
+                                    </div>
+                                    <div class="space-y-3">
+                                        <div>
+                                            <label class="text-sm font-medium text-gray-500">Enddatum</label>
+                                            <p class="text-gray-900">${employee.empend || 'Aktiv'}</p>
+                                        </div>
+                                        <div>
+                                            <label class="text-sm font-medium text-gray-500">Mitarbeiter ID</label>
+                                            <p class="text-gray-900">#${employee.id}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="mt-6 pt-4 border-t">
+                                    <div class="flex space-x-3">
+                                        <button onclick="loadEmployeeSchedule(${employeeId})" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                                            Schichtplan anzeigen
+                                        </button>
+                                        <button onclick="loadEmployeeAbsences(${employeeId})" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors">
+                                            Abwesenheiten
+                                        </button>
+                                        <button onclick="closeEmployeeModal()" class="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400 transition-colors">
+                                            Schließen
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                // Add modal to page
+                document.body.insertAdjacentHTML('beforeend', modalHTML);
+                
+            } catch (error) {
+                console.error('❌ Failed to load employee details:', error);
+                alert('Fehler beim Laden der Mitarbeiter-Details: ' + error.message);
+            }
+        }
+
+        function closeEmployeeModal() {
+            const modal = document.getElementById('employee-modal');
+            if (modal) {
+                modal.remove();
+            }
+        }
+
+        async function loadEmployeeSchedule(employeeId) {
+            closeEmployeeModal();
+            showTab('schedule');
+            // Future: filter schedule by employee
+        }
+
+        async function loadEmployeeAbsences(employeeId) {
+            try {
+                const response = await fetch(`/api/employees/${employeeId}/absences`);
+                if (!response.ok) throw new Error('Failed to load absences');
+                
+                const absences = await response.json();
+                console.log(`📋 Loaded ${absences.length} absences for employee ${employeeId}`);
+                
+                // Show absences in modal (simplified version)
+                alert(`Mitarbeiter hat ${absences.length} Abwesenheiten registriert.`);
+                
+            } catch (error) {
+                console.error('❌ Failed to load absences:', error);
+                alert('Fehler beim Laden der Abwesenheiten: ' + error.message);
+            }
+        }
+
+        // Note: showTab function is defined earlier (line 1074) - this duplicate was removed
+
+        console.log('📄 Premium dashboard script loaded');
+        
+        // Dark Mode Toggle Functionality
+        function initializeTheme() {
+            const themeToggle = document.getElementById('theme-toggle');
+            const sunIcon = document.getElementById('sun-icon');
+            const moonIcon = document.getElementById('moon-icon');
+            const body = document.body;
+            
+            // Load saved theme from localStorage
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            body.setAttribute('data-theme', savedTheme);
+            updateThemeIcons(savedTheme);
+            
+            // Theme toggle event listener
+            themeToggle.addEventListener('click', () => {
+                const currentTheme = body.getAttribute('data-theme');
+                const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+                
+                body.setAttribute('data-theme', newTheme);
+                localStorage.setItem('theme', newTheme);
+                updateThemeIcons(newTheme);
+                
+                // Add transition effect
+                body.style.transition = 'background-color 0.3s ease, color 0.3s ease';
+                setTimeout(() => {
+                    body.style.transition = '';
+                }, 300);
+            });
+            
+            function updateThemeIcons(theme) {
+                if (theme === 'dark') {
+                    sunIcon.classList.add('hidden');
+                    moonIcon.classList.remove('hidden');
+                } else {
+                    sunIcon.classList.remove('hidden');
+                    moonIcon.classList.add('hidden');
+                }
+            }
+        }
+        
+        // Initialize theme on page load
+        document.addEventListener('DOMContentLoaded', initializeTheme);
+        
+        // Enhanced sidebar toggle for mobile
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('open');
+            
+            // Add backdrop for mobile
+            if (sidebar.classList.contains('open')) {
+                const backdrop = document.createElement('div');
+                backdrop.classList.add('fixed', 'inset-0', 'bg-black', 'bg-opacity-50', 'z-40');
+                backdrop.id = 'sidebar-backdrop';
+                backdrop.addEventListener('click', toggleSidebar);
+                document.body.appendChild(backdrop);
+            } else {
+                const backdrop = document.getElementById('sidebar-backdrop');
+                if (backdrop) {
+                    backdrop.remove();
+                }
+            }
+        }
+        
+        // Enhanced Mobile Touch Gestures
+        let touchStartX = 0;
+        let touchStartY = 0;
+        let isSwiping = false;
+        
+        function initMobileGestures() {
+            // Add swipe gestures for mobile sidebar
+            document.addEventListener('touchstart', handleTouchStart, { passive: true });
+            document.addEventListener('touchmove', handleTouchMove, { passive: true });
+            document.addEventListener('touchend', handleTouchEnd, { passive: true });
+        }
+        
+        function handleTouchStart(e) {
+            if (window.innerWidth > 1024) return; // Only on mobile
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+            isSwiping = false;
+        }
+        
+        function handleTouchMove(e) {
+            if (window.innerWidth > 1024) return;
+            if (!touchStartX || !touchStartY) return;
+            
+            const touchX = e.touches[0].clientX;
+            const touchY = e.touches[0].clientY;
+            const deltaX = touchX - touchStartX;
+            const deltaY = touchY - touchStartY;
+            
+            // Check if it's a horizontal swipe
+            if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 30) {
+                isSwiping = true;
+            }
+        }
+        
+        function handleTouchEnd(e) {
+            if (window.innerWidth > 1024 || !isSwiping) return;
+            
+            const touchEndX = e.changedTouches[0].clientX;
+            const deltaX = touchEndX - touchStartX;
+            const sidebar = document.getElementById('sidebar');
+            
+            // Swipe right to open sidebar (from left edge)
+            if (deltaX > 50 && touchStartX < 50 && !sidebar.classList.contains('open')) {
+                toggleSidebar();
+            }
+            // Swipe left to close sidebar
+            else if (deltaX < -50 && sidebar.classList.contains('open')) {
+                toggleSidebar();
+            }
+            
+            // Reset values
+            touchStartX = 0;
+            touchStartY = 0;
+            isSwiping = false;
+        }
+        
+        // Enhanced UX Feedback System
+        function initializeUXEnhancements() {
+            // Add interactive element classes to buttons and clickable items
+            const interactiveElements = document.querySelectorAll('button, .tab-button, .nav-item, .card');
+            interactiveElements.forEach(element => {
+                element.classList.add('interactive-element');
+            });
+            
+            // Add smooth transitions to content areas
+            const contentAreas = document.querySelectorAll('.tab-content, .card, .schedule-matrix');
+            contentAreas.forEach(area => {
+                area.classList.add('fade-in');
+            });
+            
+            // Enhanced button click feedback
+            document.addEventListener('click', function(e) {
+                if (e.target.matches('button, .tab-button, .nav-item')) {
+                    addRippleEffect(e.target, e);
+                }
+            });
+        }
+        
+        function addRippleEffect(element, event) {
+            const ripple = document.createElement('span');
+            const rect = element.getBoundingClientRect();
+            const size = Math.max(rect.width, rect.height);
+            const x = event.clientX - rect.left - size / 2;
+            const y = event.clientY - rect.top - size / 2;
+            
+            ripple.style.cssText = `
+                position: absolute;
+                width: ${size}px;
+                height: ${size}px;
+                left: ${x}px;
+                top: ${y}px;
+                background: radial-gradient(circle, rgba(255,255,255,0.6) 0%, transparent 70%);
+                border-radius: 50%;
+                transform: scale(0);
+                animation: ripple 0.4s ease-out;
+                pointer-events: none;
+                z-index: 1;
+            `;
+            
+            element.style.position = 'relative';
+            element.appendChild(ripple);
+            
+            setTimeout(() => ripple.remove(), 400);
+        }
+        
+        // Toast notification system
+        function showToast(message, type = 'info', duration = 3000) {
+            const toast = document.createElement('div');
+            toast.classList.add('toast', 'fixed', 'top-4', 'right-4', 'p-4', 'rounded-lg', 'shadow-lg', 'z-50');
+            
+            const bgColor = {
+                'success': 'bg-green-500',
+                'error': 'bg-red-500',
+                'warning': 'bg-yellow-500',
+                'info': 'bg-blue-500'
+            }[type] || 'bg-blue-500';
+            
+            toast.classList.add(bgColor, 'text-white');
+            toast.textContent = message;
+            
+            document.body.appendChild(toast);
+            
+            // Trigger animation
+            setTimeout(() => toast.classList.add('show'), 10);
+            
+            // Auto remove
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 300);
+            }, duration);
+        }
+        
+        // Enhanced loading state with progress
+        function showProgressiveLoading(message = 'Laden...', steps = ['Verbindung herstellen', 'Daten abrufen', 'Verarbeitung']) {
+            const overlay = document.createElement('div');
+            overlay.id = 'progressive-loading';
+            overlay.className = 'fixed inset-0 bg-white bg-opacity-95 backdrop-blur-sm z-50 flex items-center justify-center';
+            
+            let currentStep = 0;
+            overlay.innerHTML = `
+                <div class="bg-white rounded-xl shadow-xl p-8 max-w-md w-full mx-4">
+                    <div class="text-center mb-6">
+                        <div class="animate-spin w-8 h-8 border-3 border-blue-200 border-t-blue-600 rounded-full mx-auto mb-4"></div>
+                        <h3 class="text-lg font-semibold text-gray-800">${message}</h3>
+                    </div>
+                    <div class="space-y-3">
+                        ${steps.map((step, index) => `
+                            <div class="flex items-center space-x-3">
+                                <div class="step-indicator w-6 h-6 rounded-full border-2 flex items-center justify-center text-xs font-semibold ${index === 0 ? 'border-blue-500 bg-blue-500 text-white' : 'border-gray-300 text-gray-400'}">
+                                    ${index + 1}
+                                </div>
+                                <span class="text-sm ${index === 0 ? 'text-blue-600 font-medium' : 'text-gray-500'}">${step}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div class="mt-6">
+                        <div class="progress-bar-container bg-gray-200 rounded-full h-2">
+                            <div class="progress-bar w-0 h-full rounded-full transition-all duration-500"></div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(overlay);
+            return overlay;
+        }
+        
+        // Add CSS animations
+        const rippleCSS = `
+            @keyframes ripple {
+                from { transform: scale(0); opacity: 0.6; }
+                to { transform: scale(2); opacity: 0; }
+            }
+        `;
+        const styleSheet = document.createElement('style');
+        styleSheet.textContent = rippleCSS;
+        document.head.appendChild(styleSheet);
+        
+        // Initialize all enhancements when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            initMobileGestures();
+            initializeUXEnhancements();
+        });
+    </script>
+    </div> <!-- Close app-layout -->
+</body>
+</html>

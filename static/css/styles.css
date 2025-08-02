@@ -1,0 +1,293 @@
+/**
+ * Custom CSS for OpenSchichtplaner5 Frontend
+ * Enhances Tailwind CSS with custom styles
+ */
+
+/* Screen reader only content */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* Focus styles for better accessibility */
+.focus-visible:focus {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f5f9;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+/* Loading animation improvements */
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.animate-spin {
+    animation: spin 1s linear infinite;
+}
+
+/* Extended animations for modern UI */
+@keyframes fadeIn {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+}
+
+@keyframes slideUp {
+    0% { transform: translateY(10px); opacity: 0; }
+    100% { transform: translateY(0); opacity: 1; }
+}
+
+.animate-fade-in {
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+.animate-slide-up {
+    animation: slideUp 0.3s ease-out;
+}
+
+.animate-pulse-slow {
+    animation: pulse 3s infinite;
+}
+
+.animate-bounce-slow {
+    animation: bounce 2s infinite;
+}
+
+/* Custom button hover effects */
+.btn-primary {
+    @apply bg-blue-600 text-white px-4 py-2 rounded-md font-medium;
+    transition: all 0.2s ease-in-out;
+}
+
+.btn-primary:hover {
+    @apply bg-blue-700 transform scale-105;
+}
+
+.btn-primary:active {
+    @apply transform scale-95;
+}
+
+/* Card hover effects */
+.card-hover {
+    transition: all 0.3s ease-in-out;
+}
+
+.card-hover:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* Status indicators */
+.status-dot {
+    position: relative;
+}
+
+.status-dot::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: inherit;
+    animation: pulse 2s infinite;
+    opacity: 0.6;
+}
+
+@keyframes pulse {
+    0% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 0.6;
+    }
+    70% {
+        transform: translate(-50%, -50%) scale(1.4);
+        opacity: 0;
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(1.4);
+        opacity: 0;
+    }
+}
+
+/* Toast notification styles */
+.toast-enter {
+    transform: translateX(100%);
+    opacity: 0;
+}
+
+.toast-enter-active {
+    transform: translateX(0);
+    opacity: 1;
+    transition: all 0.3s ease-out;
+}
+
+.toast-leave {
+    transform: translateX(0);
+    opacity: 1;
+}
+
+.toast-leave-active {
+    transform: translateX(100%);
+    opacity: 0;
+    transition: all 0.2s ease-in;
+}
+
+/* Mobile-first responsive design helpers */
+@media (max-width: 640px) {
+    .mobile-stack {
+        flex-direction: column;
+    }
+    
+    .mobile-full {
+        width: 100%;
+    }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    .dark-auto {
+        background-color: #1f2937;
+        color: #f9fafb;
+    }
+    
+    .dark-auto .bg-white {
+        background-color: #374151;
+    }
+    
+    .dark-auto .text-gray-900 {
+        color: #f9fafb;
+    }
+    
+    .dark-auto .text-gray-500 {
+        color: #9ca3af;
+    }
+}
+
+/* Print styles */
+@media print {
+    .no-print {
+        display: none !important;
+    }
+    
+    .print-break {
+        page-break-after: always;
+    }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .btn-primary {
+        border: 2px solid currentColor;
+    }
+    
+    .card-hover {
+        border: 1px solid currentColor;
+    }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+    
+    .status-dot::before {
+        animation: none;
+    }
+}
+
+/* Alpine.js specific styles */
+[x-cloak] { 
+    display: none !important; 
+}
+
+/* Glass morphism effect */
+.glass-morphism {
+    background: rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.dark .glass-morphism {
+    background: rgba(31, 41, 55, 0.25);
+    border: 1px solid rgba(75, 85, 99, 0.18);
+}
+
+/* Gradient backgrounds */
+.gradient-bg {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+/* Shift card effects */
+.shift-card {
+    transition: all 0.2s ease-in-out;
+}
+
+.shift-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+/* Shift tags */
+.shift-tag {
+    font-size: 0.7rem;
+    padding: 2px 6px;
+    border-radius: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Chart.js Canvas Container Fix */
+.chart-container {
+    position: relative;
+    height: 300px !important;
+    width: 100% !important;
+    max-height: 300px !important;
+    overflow: hidden;
+}
+
+.chart-container canvas {
+    max-height: 300px !important;
+    height: 300px !important;
+    width: 100% !important;
+}
+
+/* Specific chart sizing */
+#shiftDistributionChart {
+    max-height: 260px !important;
+    height: 260px !important;
+}
+
+#weeklyChart {
+    max-height: 260px !important;
+    height: 260px !important;
+}
