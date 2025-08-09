@@ -123,16 +123,7 @@ def main():
         """Employee management page."""
         return templates.TemplateResponse("index.html", {"request": request, "default_tab": "employees"})
     
-    # Utility routes
-    @app.get("/simple", response_class=HTMLResponse, include_in_schema=False)
-    async def simple_page(request: Request):
-        """Simple fallback page."""
-        return templates.TemplateResponse("simple.html", {"request": request})
-    
-    @app.get("/debug", response_class=HTMLResponse, include_in_schema=False)
-    async def debug_page(request: Request):
-        """Debug page for troubleshooting."""
-        return templates.TemplateResponse("debug.html", {"request": request})
+    # Utility routes (none currently defined)
 
     # Run the server
     uvicorn.run(
